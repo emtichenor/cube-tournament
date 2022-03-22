@@ -7,8 +7,8 @@ import os
 
 @patch('time.sleep')
 def test_integration(patch_time):
-    os.getcwd()
-    os.chdir('../Files')
+    print(os.getcwd())
+    os.chdir('../')
     main.practiceTournament(Config.get_options(True))
 
     roster = Roster()
