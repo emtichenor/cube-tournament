@@ -1,6 +1,7 @@
 # Manually Added
 .idea/
-
+Files/Data/Practice_Tournaments/*.csv
+Files/Data/Rosters/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
