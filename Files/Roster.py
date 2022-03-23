@@ -202,7 +202,8 @@ class Roster:
     def improve(self):
         pass
 
-    def randomTournamentName(self):
+    @staticmethod
+    def randomTournamentName():
         file = open('Data/Practice_Tournaments/Event_List/world_cities.csv')
         csvreader = csv.reader(file)
         cities = []

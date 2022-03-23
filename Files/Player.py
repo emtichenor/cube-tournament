@@ -8,16 +8,6 @@ class Player:
         self.fname = args[0]
         self.lname = args[1]
         self.age = args[2]
-        # self.expected_score = self.to_float(args[3])
-        # self.best_single = self.to_float(args[8])
-        # self.best_ao5 = self.to_float(args[9])
-        # self.best_ao5_times = args[10]
-        # self.best_placing = self.to_int(args[4])
-        # self.avg_placing = self.to_float(args[5])
-        # self.win_count = self.to_int(args[6])
-        # self.podium_count = self.to_int(args[7])
-        # self.consistency = None
-
         self.expected_score = self.to_float(args[3])
         self.consistency = self.to_float(args[4])
         self.best_placing = self.to_int(args[5])
