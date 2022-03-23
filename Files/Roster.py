@@ -1,7 +1,7 @@
 import csv
 import time
 
-from Files.Person import Person
+from Files.Player import Player
 from datetime import datetime
 import random
 import os
@@ -28,7 +28,7 @@ class Roster:
             self.loadAllTimeRecords(records)
             self.header = next(csvreader)
             for row in csvreader:
-                person = Person(row)
+                person = Player(row)
                 self.roster.append(person)
             file.close()
             return self.event_name
@@ -186,12 +186,13 @@ class Roster:
 
     def temp_expected(self):
         # dict = {'9':38, '8':40,'7':42,'6':43,'5':44,'4': 45,'3':45,'2':46,'1':47,'0':50}
+        self.header.insert(4,"Consistency")
         for person in self.roster:
             if person.fname == "Emerson":
                 person.expected_score = 0.0
                 person.consistency = 0.0
             else:
-                temp = person.expected_score * random.uniform(0.1,0.2)
+                temp = person.expected_score * random.uniform(0.06,0.15)
                 person.consistency = round(temp,2)
 
 
@@ -225,6 +226,6 @@ class Roster:
         if records[0] != "N/A":
             self.all_time_records['Best Single']['score'] = float(records[1])
             self.all_time_records['Best Single']['name'] = records[2]
-            self.all_time_records['Best AO5']['ao5']= float(records[4])
+            self.all_time_records['Best AO5']['ao5'] = float(records[4])
             self.all_time_records['Best AO5']['name'] = records[5]
             self.all_time_records['Best AO5']['raw_scores'] = records[6]
