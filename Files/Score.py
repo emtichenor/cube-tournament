@@ -1,8 +1,7 @@
-
 import random
 from statistics import mean
-class Score:
 
+class Score:
     @staticmethod
     def ao5(raw_scores):
         processed_scores = raw_scores.copy()
@@ -17,23 +16,23 @@ class Score:
         return ao5_set
 
     @staticmethod
-    def generate_ao5(expected_score):
+    def generate_ao5(player):
         raw_scores = []
         for _ in range(5):
-            score = Score.single(expected_score)
+            score = Score.single(player)
             raw_scores.append(score)
         return Score.ao5(raw_scores)
 
     @staticmethod
-    def single(expected_score):
-        if random.randint(0,49) == 0:
+    def single(player):
+        if random.uniform(0,100) < player.consistency:
             return "DNF"
-        return float(round(random.gauss(expected_score, 3.5), 3))
+        return float(round(random.gauss(player.expected_score, player.consistency), 3))
 
     @staticmethod
     def handle_dnf(e):
         if e == "DNF":
-            return 1000
+            return 100000
         return e
 
     @staticmethod

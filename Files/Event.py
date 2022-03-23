@@ -2,7 +2,7 @@ import csv
 import os
 import time
 
-from Files.Person import Person
+from Files.Player import Player
 from Files.Roster import Roster
 from Files.Score import Score
 import random
@@ -24,18 +24,18 @@ class Event:
 
     def qualify(self):
         self.total_entrants = len(self.roster)
-        for person in self.roster:
-            if person.fname == "Emerson":
+        for player in self.roster:
+            if player.fname == "Emerson":
                 scores = self.userQualify()
-                self.user = person
+                self.user = player
             else:
-                scores = Score.generate_ao5(person.expected_score)
-            person.recent_ao5 = scores['ao5']
-            person.recent_raw_scores = scores['raw_scores']
-            person.qualify_ao5 = scores['ao5']
-            person.qualify_times = scores['raw_scores']
+                scores = Score.generate_ao5(player)
+            player.recent_ao5 = scores['ao5']
+            player.recent_raw_scores = scores['raw_scores']
+            player.qualify_ao5 = scores['ao5']
+            player.qualify_times = scores['raw_scores']
 
-            self.qualify_rankings.append(person)
+            self.qualify_rankings.append(player)
         self.qualify_rankings.sort(key=Event.get_score)
         print(f'Your Average was [{self.user.recent_ao5}]')
         print(f'with times of {Score.print_ao5_times(self.user.recent_raw_scores)}')
@@ -50,12 +50,12 @@ class Event:
             time.sleep(1)
         self.final_rankings = self.qualify_rankings[self.num_qualify:]
         rank = 1
-        for person in self.qualify_rankings:
-            person.qualify_rank = rank
+        for player in self.qualify_rankings:
+            player.qualify_rank = rank
             if rank > self.num_qualify:
-                self.roster_obj.checkRecords(person, self.event_records, person.qualify_rank)
+                self.roster_obj.checkRecords(player, self.event_records, player.qualify_rank)
             else:
-                self.roster_obj.checkRecords(person, self.event_records)
+                self.roster_obj.checkRecords(player, self.event_records)
             rank += 1
 
     def tournament(self):
@@ -156,9 +156,9 @@ class Event:
                 csvwriter.writerow([self.name])
                 csvwriter.writerow([f"Top {self.num_qualify} Qualify."])
                 csvwriter.writerow(["Rank", "First Name", "Last Name", "AO5", "Scores"])
-                for person in self.qualify_rankings:
-                    person_csv = [ordinal(person.qualify_rank), person.fname, person.lname, person.qualify_ao5, person.qualify_times]
-                    csvwriter.writerow(person_csv)
+                for player in self.qualify_rankings:
+                    player_csv = [ordinal(player.qualify_rank), player.fname, player.lname, player.qualify_ao5, player.qualify_times]
+                    csvwriter.writerow(player_csv)
                 csvfile.close()
 
 
@@ -177,12 +177,12 @@ class Event:
             csvwriter.writerow(event_records)
             csvwriter.writerow(["Rank", "First Name", "Last Name", "Event AVG", "Best Event Single","Best Event AO5", "Times", "Solves", "DNFs"])
             i = 1
-            for person in self.final_rankings:
-                person_csv = [ordinal(i), person.fname, person.lname, person.avg_event_time,
-                              person.best_event_single, person.best_event_ao5, person.best_event_ao5_times,
-                              person.event_solves, person.event_DNF_count]
+            for player in self.final_rankings:
+                player_csv = [ordinal(i), player.fname, player.lname, player.avg_event_time,
+                              player.best_event_single, player.best_event_ao5, player.best_event_ao5_times,
+                              player.event_solves, player.event_DNF_count]
                 i += 1
-                csvwriter.writerow(person_csv)
+                csvwriter.writerow(player_csv)
             csvfile.close()
 
 
@@ -237,7 +237,7 @@ class Event:
                 print(f"Current AO5: {[str(user_scores) for user_scores in user_scores]}   vs   "
                       f"Current AO5: {[str(opp_scores) for opp_scores in opp_scores]}")
             input(f"Press enter to start solve {i}  ")
-            opp_score = Score.single(opp.expected_score)
+            opp_score = Score.single(opp)
             if not self.options['NO_INPUT_FLAG']:
                 if not isinstance(opp_score, float): time.sleep(45)
                 else: time.sleep(opp_score)
@@ -311,8 +311,8 @@ class Event:
             print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs         Last AO5:  [{right.recent_ao5}]\n\n')
             time.sleep(2)
             for i in range(1,6):
-                left_score = Score.single(left.expected_score)
-                right_score = Score.single(right.expected_score)
+                left_score = Score.single(left)
+                right_score = Score.single(right)
                 left_scores.append(left_score)
                 right_scores.append(right_score)
                 print(f'Solve {i}:')
@@ -342,8 +342,8 @@ class Event:
             print(f'Scores: {Score.print_ao5_times(loser.recent_raw_scores)}')
 
         else:
-            left_result = Score.generate_ao5(left.expected_score)
-            right_result = Score.generate_ao5(right.expected_score)
+            left_result = Score.generate_ao5(left)
+            right_result = Score.generate_ao5(right)
             left.recent_ao5 = left_result['ao5']
             right.recent_ao5 = right_result['ao5']
             left.recent_raw_scores = left_result['raw_scores']
