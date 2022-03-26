@@ -1,6 +1,6 @@
 import csv
 import os
-from random import random
+import random
 
 from Files.Roster import Roster
 
@@ -9,22 +9,23 @@ class Campaign:
     def __init__(self):
         self.tournaments = []
         self.next_tournament = []
+        self.roster = Roster()
+
 
     def startup(self):
-
-        while True:
+        for _ in range(100):
             try:
                 self.campaign_name = input("Please enter a campaign name: ")
-                os.mkdir(f"Data/Campaigns/{self.campaign_name}")
+                os.mkdir(f"../Data/Campaigns/{self.campaign_name}")
                 break
             except OSError as error:
                 print(f"A campaign named {self.campaign_name} already exists!\n")
-        os.mkdir(f"Data/Campaigns/{self.campaign_name}/Tournaments")
-        os.mkdir(f"Data/Campaigns/{self.campaign_name}/Rosters")
-        os.mkdir(f"Data/Campaigns/{self.campaign_name}/Schedules")
+        os.mkdir(f"../Data/Campaigns/{self.campaign_name}/Tournaments")
+        os.mkdir(f"../Data/Campaigns/{self.campaign_name}/Rosters")
+        os.mkdir(f"../Data/Campaigns/{self.campaign_name}/Schedules")
         self.fname = input("Please enter your first name: ")
         self.lname = input("Please enter your last name: ")
-
+        self.roster.generateRoster()
 
 
         self.generateSeason()
@@ -37,9 +38,9 @@ class Campaign:
             if quali < 16: quali = 16
             self.tournaments.append([(i+1),name,quali,"N/A","N/A","N/A"])
         #insert Championship here
-        schedule_path = f"Data/Campaigns/{self.campaign_name}/Schedules"
+        schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
         season_num = len(os.listdir(schedule_path)) + 1
-        schedule_path = schedule_path + f"Season_{season_num}"
+        schedule_path = schedule_path + f"Season_{season_num}.csv"
         with open(schedule_path , 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["Num", "Name", "Num Quali", "First", "Second", "Third"])

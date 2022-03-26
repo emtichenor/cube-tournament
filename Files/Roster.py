@@ -57,6 +57,32 @@ class Roster:
                     csvwriter.writerow(person.to_csv())
                 csvfile.close()
 
+    def generateRoster(self):
+        self.roster = []
+
+    def improve(self):
+        pass
+
+    @staticmethod
+    def randomTournamentName():
+        file = open('../Data/Practice_Tournaments/Event_List/world_cities.csv')
+        csvreader = csv.reader(file)
+        cities = []
+        pop = []
+        for row in csvreader:
+            cities.append(row)
+            pop.append(int(row[2]))
+        file.close()
+
+        city_list = random.choices(cities,weights=pop)[0]
+        city = city_list[0]
+        country = city_list[1]
+        options = [f'The {city} Open Tournament', f'{city} Open', f'{city} Cup', f'The {city} Cubing Cup', f'The {city} Cubing Open',
+                   f'The {city} Cup Sponsored by GAN', f'The {city} Big Double', f'The MoYu {city} Cup',
+                   f'The {city} Open Tournament in {country}', f'The {country} Nationals in {city}', f'The {city} Big Double in {country}',
+                   f'The {country} Open in {city}']
+        r = random.randint(0,len(options)-1)
+        return options[r]
 
     def checkRecords(self, player, event_records, placement=None):
         self.checkPersonalRecords(player, placement)
@@ -195,33 +221,6 @@ class Roster:
                 temp = person.expected_score * random.uniform(0.06,0.15)
                 person.consistency = round(temp,2)
 
-
-
-
-
-    def improve(self):
-        pass
-
-    @staticmethod
-    def randomTournamentName():
-        file = open('Data/Practice_Tournaments/Event_List/world_cities.csv')
-        csvreader = csv.reader(file)
-        cities = []
-        pop = []
-        for row in csvreader:
-            cities.append(row)
-            pop.append(int(row[2]))
-        file.close()
-
-        city_list = random.choices(cities,weights=pop)[0]
-        city = city_list[0]
-        country = city_list[1]
-        options = [f'The {city} Open Tournament', f'{city} Open', f'{city} Cup', f'The {city} Cubing Cup', f'The {city} Cubing Open',
-                   f'The {city} Cup Sponsored by GAN', f'The {city} Big Double', f'The MoYu {city} Cup',
-                   f'The {city} Open Tournament in {country}', f'The {country} Nationals in {city}', f'The {city} Big Double in {country}',
-                   f'The {country} Open in {city}']
-        r = random.randint(0,len(options)-1)
-        return options[r]
 
     def loadAllTimeRecords(self, records):
         if records[0] != "N/A":
