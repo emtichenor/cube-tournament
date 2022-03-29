@@ -1,4 +1,5 @@
 import csv
+import os
 import random
 
 from Files.Event import Event
@@ -51,12 +52,25 @@ def menu(test_mode=False):
 
 
 def garbage():
-    roster = Roster()
-    roster.load()
-    roster.temp_expected()
-    roster.save()
+    roster = []
+    file = open('Data/Rosters/Templates/new_original_roster.csv')
+    csvreader = csv.reader(file)
+    na = []
+    for _ in range(9): na.append("N/A")
+    header = next(csvreader)
+    for row in csvreader:
+        row.extend(na)
+        roster.append(row)
+    file.close()
+    header = ["First Name", "Last Name", "Age", "Expected Time","Consistency", "Best Placing", "AVG Placing", "Wins", "Podiums", "Best Single", "Best AO5", "Best AO5 Times"]
+    with open('Data/Rosters/Templates/main_roster_template.csv', 'w', newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
 
 
+        csvwriter.writerow(header)
+        for person in roster:
+            csvwriter.writerow(person)
+        csvfile.close()
 
 
 
@@ -67,4 +81,4 @@ if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
 
     garbage()
-    menu()
+    #menu()

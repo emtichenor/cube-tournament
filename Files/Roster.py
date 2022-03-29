@@ -1,4 +1,5 @@
 import csv
+import re
 import time
 
 from Files.Player import Player
@@ -57,9 +58,87 @@ class Roster:
                     csvwriter.writerow(person.to_csv())
                 csvfile.close()
 
-    def generateRoster(self):
+    def generateRoster(self, filepath):
         self.roster = []
+        roster_values = {}
+        file = open('Data/Rosters/Templates/main_roster_template.csv')
+        csvreader = csv.reader(file)
+        header = next(csvreader)
+        for row in csvreader:
+            self.roster.append(row)
+        file.close()
+        for _ in range(1000):
+            print("Would you like to customize the roster generation or generate it based on your solves?")
+            ans = input("Enter 'custom' to customize or enter 'solve' to auto generate: ")
+            if ans in ["custom", "Custom"]:
+                roster_values = self.generateCustomRoster()
+            elif ans in ["solve", "Solve"]:
+                roster_values = self.autoGenerateRoster()
+            else:
+                print("Invalid input!")
+                continue
+        with open(filepath, 'w', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(["NumEvents", self.event_num])
 
+            csvwriter.writerow("N/A")
+            csvwriter.writerow(header)
+            for person in self.roster:
+                if self.season_flag:
+                    # High chance they become too young, calc as 18
+                    exp_score = roster_values["exp_score"][0]
+                    exp_score_sd = roster_values["exp_score"][1]
+                    consistency = roster_values["consistency"][0]
+                    consistency_sd = roster_values["consistency"][1]
+                else:
+                    exp_score = roster_values["exp_score"][0]
+                    exp_score_sd = roster_values["exp_score"][1]
+                    consistency = roster_values["consistency"][0]
+                    consistency_sd = roster_values["consistency"][1]
+                person[3] = random.gauss(exp_score,exp_score_sd)
+                person[4] = random.gauss(consistency,consistency_sd)
+                csvwriter.writerow(person)
+            csvfile.close()
+
+    def generateCustomRoster(self):
+        print("\n\nThe skill of players is randomly generated based on a normal distribution.")
+        print("Players have an expected score and a consistency metric.")
+        print("The consistency metric is the standard deviation from the expected score.")
+        exp_score,consistency = None,None
+
+        for _ in range(1000):
+            if exp_score is None:
+                print("\nPlease enter the mean expected score of players and the standard deviation of the expected score to generate each players expected score.")
+                ans = input("Values seperated by a comma: ")
+                exp_score = re.split('; |, |,| ', ans)
+                try:
+                    if len(exp_score) != 2: raise ValueError
+                    exp_score[0] = float(exp_score[0])
+                    exp_score[1] = float(exp_score[1])
+                except ValueError:
+                    print("Invalid input! Please enter two numbers seperated by a comma.")
+                    exp_score = None
+                    continue
+            if consistency is None:
+                print("The consistency score is the standard deviation each player will have from their expected score when generating their scores in a tournament.")
+                print("\nPlease enter the mean consistency score of players and the standard deviation of the consistency score to generate each players consistency score.")
+                ans = input("Values seperated by a comma: ")
+                consistency = re.split('; |, |,| ', ans)
+                try:
+                    if len(consistency) != 2: raise ValueError
+                    consistency[0] = float(consistency[0])
+                    consistency[1] = float(consistency[1])
+                except ValueError:
+                    print("Invalid input! Please enter two numbers seperated by a comma.")
+                    consistency = None
+                    continue
+        return {"exp_score": exp_score, "consistency": consistency}
+
+
+
+
+    def autoGenerateRoster(self):
+        pass
     def improve(self):
         pass
 
