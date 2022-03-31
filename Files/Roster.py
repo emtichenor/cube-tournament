@@ -1,5 +1,6 @@
 import csv
 import re
+import statistics
 import time
 
 from Files.Player import Player
@@ -67,12 +68,14 @@ class Roster:
         for row in csvreader:
             self.roster.append(row)
         file.close()
-        for _ in range(1000):
+        for _ in range(10000):
             print("Would you like to customize the roster generation or generate it based on your solves?")
             ans = input("Enter 'custom' to customize or enter 'solve' to auto generate: ")
             if ans in ["custom", "Custom"]:
+                print("\n\n\n")
                 roster_values = self.generateCustomRoster()
             elif ans in ["solve", "Solve"]:
+                print("\n\n\n")
                 roster_values = self.autoGenerateRoster()
             else:
                 print("Invalid input!")
@@ -83,20 +86,23 @@ class Roster:
 
             csvwriter.writerow("N/A")
             csvwriter.writerow(header)
+
+            exp_score = roster_values["exp_score"][0]
+            exp_score_sd = roster_values["exp_score"][1]
+            consistency = roster_values["consistency"][0]
+            consistency_sd = roster_values["consistency"][1]
             for person in self.roster:
-                if self.season_flag:
-                    # High chance they become too young, calc as 18
-                    exp_score = roster_values["exp_score"][0]
-                    exp_score_sd = roster_values["exp_score"][1]
-                    consistency = roster_values["consistency"][0]
-                    consistency_sd = roster_values["consistency"][1]
-                else:
-                    exp_score = roster_values["exp_score"][0]
-                    exp_score_sd = roster_values["exp_score"][1]
-                    consistency = roster_values["consistency"][0]
-                    consistency_sd = roster_values["consistency"][1]
                 person[3] = random.gauss(exp_score,exp_score_sd)
                 person[4] = random.gauss(consistency,consistency_sd)
+                if self.season_flag:
+                    if random.uniform(0,100) > 20:
+                        person[2] = random.uniform(-27,18)
+                        improve_sim = 0
+                    else:
+                        improve_sim = person[2] - 18
+                    for _ in range(improve_sim):
+                        self.improve(person)
+
                 csvwriter.writerow(person)
             csvfile.close()
 
@@ -104,6 +110,7 @@ class Roster:
         print("\n\nThe skill of players is randomly generated based on a normal distribution.")
         print("Players have an expected score and a consistency metric.")
         print("The consistency metric is the standard deviation from the expected score.")
+        if self.season_flag: print("Note: Players improve as they age, so older players will sim years of improvement in this roster generation.")
         exp_score,consistency = None,None
 
         for _ in range(1000):
@@ -135,12 +142,46 @@ class Roster:
         return {"exp_score": exp_score, "consistency": consistency}
 
 
-
-
     def autoGenerateRoster(self):
-        pass
-    def improve(self):
-        pass
+        print("Your roster will be auto-generated based on your times.")
+        difficulty = ""
+        for _ in range(1000):
+            difficulty = input("Please enter a difficulty: [Easy, Medium, or Hard\n")
+            if difficulty not in ["Easy", "easy", "medium", "Medium", "Hard", "hard"]:
+                print("Invalid Input!\n\n")
+                continue
+            else: break
+        print("Please enter at least 5 times. More times will improve accuracy. Enter 'stop' to finish entering times")
+        user_times = []
+        for _ in range(1000):
+            time = input("Enter Time: ")
+            if time not in ["stop","Stop"]:
+                try:
+                    time = float(time)
+                    user_times.append(time)
+                except ValueError:
+                    print("Invalid Time! Try again or say 'stop' to finish")
+            elif len(user_times) <5:
+                print(f"Please enter at least {5-len(user_times)} more time(s).")
+            else:
+                break
+
+        mean_score = statistics.mean(user_times)
+        sd_score = statistics.stdev(user_times)
+        if difficulty in ["Easy", "easy"]:
+            exp_score = [(mean_score * 1.3), (mean_score * 0.05)]
+            consistency = [(sd_score * 1.1), (sd_score * 0.1)]
+        elif difficulty in ["medium", "Medium"]:
+            exp_score = [(mean_score * 1.25), (mean_score * 0.06)]
+            consistency = [(sd_score * 1.1), (sd_score * 0.1)]
+        else: # Hard
+            exp_score = [(mean_score * 1.2),(mean_score * 0.07)]
+            consistency = [(sd_score * 1.1), (sd_score * 0.1)]
+        return {"exp_score": exp_score, "consistency": consistency}
+
+    def improve(self, player):
+        player[3] *= random.gauss(0.99, 0.01)
+        player[4] *= random.gauss(0.98, 0.01)
 
     @staticmethod
     def randomTournamentName():

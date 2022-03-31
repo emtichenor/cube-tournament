@@ -1,6 +1,8 @@
 import csv
+import math
 import os
 import random
+import statistics
 
 from Files.Event import Event
 from Files.Roster import Roster
@@ -52,29 +54,22 @@ def menu(test_mode=False):
 
 
 def garbage():
-    roster = []
-    file = open('Data/Rosters/Templates/new_original_roster.csv')
-    csvreader = csv.reader(file)
-    na = []
-    for _ in range(9): na.append("N/A")
-    header = next(csvreader)
-    for row in csvreader:
-        row.extend(na)
-        roster.append(row)
-    file.close()
-    header = ["First Name", "Last Name", "Age", "Expected Time","Consistency", "Best Placing", "AVG Placing", "Wins", "Podiums", "Best Single", "Best AO5", "Best AO5 Times"]
-    with open('Data/Rosters/Templates/main_roster_template.csv', 'w', newline='') as csvfile:
-        csvwriter = csv.writer(csvfile)
+    a = []
+    for _ in range(2000):a.append(random.gauss(3*1.1,3*0.1))
+    print(max(a))
+    print(min(a))
+    print(f'mean {statistics.mean(a)}')
+    print(f'stdev {statistics.stdev(a)}')
 
-
-        csvwriter.writerow(header)
-        for person in roster:
-            csvwriter.writerow(person)
-        csvfile.close()
-
-
-
-
+    for i in range(len(a)):
+        for _ in range(random.randint(0,12)): a[i] *= random.gauss(0.98, 0.01)
+    print(max(a))
+    print(f"{min(a)} -- {min(a)/3}%")
+    print(f'mean {statistics.mean(a)}')
+    print(f'stdev {statistics.stdev(a)}')
+    # d = 33
+    # for _ in range(12): d *= random.gauss(0.99, 0.01)
+    # print(d)
     quit()
 
 if __name__ == "__main__":
