@@ -40,7 +40,7 @@ class Roster:
         if not self.campaign_flag:
             now = datetime.now()
             timestamp = now.strftime("%m%d%Y_%H%M")
-            backup_filepath = f'Data/Rosters/Backups/Practice/{self.event_num}_old_practice_roster_{timestamp}.csv'
+            backup_filepath = f'../Data/Rosters/Backups/Practice/{self.event_num}_old_practice_roster_{timestamp}.csv'
             current_filepath = "../Data/Rosters/practice_roster.csv"
 
             if path.exists(current_filepath):

@@ -13,7 +13,7 @@ class Event:
         self.qualify_rankings = []
         self.final_rankings = []
         self.total_entrants = None
-        self.campgaign_flag = options['CAMPAIGN_FLAG']
+        self.campaign_flag = options['CAMPAIGN_FLAG']
         self.roster = roster.roster
         self.roster_obj = roster
         self.event_records = {"Best Single": {}, "Best AO5":{}}
@@ -66,7 +66,9 @@ class Event:
         self.det = DoubleEliminationTournament(self.tournament_roster)
         grand_finals = False
         while not grand_finals:
-            self.printMatches(self.det.get_active_matches())
+            active_matches = self.det.get_active_matches()
+            self.active_matches_count = len(active_matches)
+            self.printMatches(active_matches)
             winners_round_matches = []
             losers_round_matches = []
             for match in self.det.get_active_matches():
@@ -142,12 +144,12 @@ class Event:
         if self.options['SAVE_FLAG']:
             name = self.name
             name.replace(" ", "_")
-            if not self.campgaign_flag:
-                filename = f'Data/Practice_Tournaments/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
+            if not self.campaign_flag:
+                filename = f'../Data/Practice_Tournaments/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
             else:
-                path = f'Data/Season/REPLACE WITH SEASON NAME VARIABLE/{name}'
+                path = f'../Data/Season/REPLACE WITH SEASON NAME VARIABLE/{name}'
                 os.makedirs(path, exist_ok=True)
-                filename = f'Data/Season/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
+                filename = f'../Data/Season/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
             with open(filename, 'w', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow([self.name])
@@ -162,10 +164,10 @@ class Event:
     def saveTournament(self):
         name = self.name
         name.replace(" ", "_")
-        if not self.campgaign_flag:
-            filename = f'Data/Practice_Tournaments/{self.roster_obj.event_num}_{name}_final_standings.csv'
+        if not self.campaign_flag:
+            filename = f'../Data/Practice_Tournaments/{self.roster_obj.event_num}_{name}_final_standings.csv'
         else:
-            filename = f'Data/Season/INSERT SEASON HERE/{self.roster_obj.event_num}_{name}_final_standings.csv'
+            filename = f'../Data/Season/INSERT SEASON HERE/{self.roster_obj.event_num}_{name}_final_standings.csv'
         with open(filename, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             event_records = ['Best Single', self.event_records['Best Single']['score'], self.event_records['Best Single']['name'],
@@ -236,8 +238,8 @@ class Event:
             input(f"Press enter to start solve {i}  ")
             opp_score = Score.single(opp)
             if not self.options['NO_INPUT_FLAG']:
-                if not isinstance(opp_score, float): time.sleep(45)
-                else: time.sleep(opp_score)
+                if not isinstance(opp_score, float): time.sleep(1)
+                else: time.sleep(1)
             print("""----------------\nOPPONENT FINISHED\n-----------------""")
             while True:
                 score = input("Enter your time or say restart: ")
@@ -369,7 +371,9 @@ class Event:
             print(f'Loser: {loser.format_seed()} [{loser.recent_ao5}]')
             print(f'Scores: {Score.print_ao5_times(loser.recent_raw_scores)}')
         self.setWinner(match, winner, loser)
-        time.sleep(1.5)
+        if self.active_matches_count > 8: match_sleep = 20 / self.active_matches_count
+        else: match_sleep = 2.5
+        time.sleep(match_sleep)
 
     def setWinner(self, match, winner, loser):
 
@@ -388,7 +392,8 @@ class Event:
             if (self.win_num + self.los_num) == 1:
                 self.final_rankings.insert(0, winner)
                 self.roster_obj.checkRecords(winner, self.event_records, 1)
-                winner.win_count += 1
+                if isinstance(winner.win_count, int): winner.win_count += 1
+                else: winner.win_count = 1
 
 
 
