@@ -2,14 +2,14 @@ import csv
 import os
 import random
 
-from Files.Roster import Roster
+from Files.src.Roster import Roster
 
 
 class Campaign:
     def __init__(self):
         self.tournaments = []
         self.next_tournament = []
-        self.roster = Roster()
+        self.roster = Roster(True)
 
 
     def startup(self):
@@ -25,7 +25,7 @@ class Campaign:
         os.mkdir(f"../Data/Campaigns/{self.campaign_name}/Schedules")
         self.fname = input("Please enter your first name: ")
         self.lname = input("Please enter your last name: ")
-        self.roster.generateRoster()
+        self.roster.generateRoster(f"../Data/Campaigns/{self.campaign_name}/Rosters/inital_roster.csv")
 
 
         self.generateSeason()

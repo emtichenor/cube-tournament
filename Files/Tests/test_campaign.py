@@ -1,8 +1,8 @@
 from unittest.mock import patch
-from Files.Campaign import Campaign
+from Files.src.Campaign import Campaign
 import os
 
-@patch('Files.Campaign.input')
+@patch('Files.src.Campaign.input')
 @patch('Files.Campaign.Campaign.generateSeason')
 def test_startup(patch_season, patch_input):
     campaign = Campaign()
@@ -17,8 +17,8 @@ def test_startup(patch_season, patch_input):
     os.rmdir(path)
     assert patch_season.call_count == 1
 
-
-def test_generateSeason():
+@patch("Files.src.Campaign.Roster")
+def test_generateSeason(patch_roster):
     campaign = Campaign()
     campaign.campaign_name = "test_gen_season"
     path = f'../Data/Campaigns/{campaign.campaign_name}/'

@@ -1,8 +1,7 @@
 from unittest.mock import patch
-import pytest
-from Files import main
+from Files.src import main
 from Files.Tests.Config import Config
-from Files.Roster import Roster
+from Files.src.Roster import Roster
 import os
 
 @patch('time.sleep')
