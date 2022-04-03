@@ -1,3 +1,4 @@
+import csv
 import statistics
 
 from Files.src.Event import Event
@@ -50,15 +51,14 @@ def menu(test_mode=False):
 
 
 def garbage():
-    roster = Roster()
-    roster.load()
-    for p in roster.roster:
-        p.win_count = 0
-        p.podium_count = 0
+    filename = f'../Data/Practice_Tournaments/1_test_final_standings.csv'
+    with open(filename, 'w', newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(["Rank", "First Name", "Last Name", "Event AVG", "Best Event Single","Best Event AO5", "Times", "Solves", "DNFs"])
     quit()
 
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
 
-    #garbage()
+    # garbage()
     menu()
