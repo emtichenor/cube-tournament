@@ -2,14 +2,14 @@ import csv
 import os
 import random
 
-from Files.Roster import Roster
+from Files.src.Roster import Roster
 
 
 class Campaign:
     def __init__(self):
         self.tournaments = []
         self.next_tournament = []
-        self.roster = Roster()
+        self.roster = Roster(True)
 
 
     def startup(self):

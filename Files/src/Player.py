@@ -47,6 +47,7 @@ class Player:
             return arg
     def to_int(self, arg):
         try:
+            if arg == 'N/A': return 0
             var = int(arg)
             return var
         except ValueError as e:
