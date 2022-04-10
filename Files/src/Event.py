@@ -6,22 +6,24 @@ from Files.src.Score import Score
 from double_elimination import Tournament as DoubleEliminationTournament, Match
 
 ordinal = lambda rank: "%d%s" % (rank, "tsnrhtdd"[(rank // 10 % 10 != 1) * (rank % 10 < 4) * rank % 10::4]) # Black magic
+
 class Event:
-    def __init__(self, name, roster, options):
+    def __init__(self, name, event_roster, roster_obj,  options):
         self.name = name
         self.num_qualify = options['num_qualify']
         self.qualify_rankings = []
         self.final_rankings = []
         self.total_entrants = None
         self.campaign_flag = options['CAMPAIGN_FLAG']
-        self.roster = roster.roster
-        self.roster_obj = roster
+        self.event_roster = event_roster
+        self.roster_obj = roster_obj
         self.event_records = {"Best Single": {}, "Best AO5":{}}
         self.options = options
+        for player in event_roster: player.setToZero()
 
     def qualify(self):
-        self.total_entrants = len(self.roster)
-        for player in self.roster:
+        self.total_entrants = len(self.event_roster)
+        for player in self.event_roster:
             if player.fname == "Emerson":
                 scores = self.userQualify()
                 self.user = player
@@ -238,8 +240,8 @@ class Event:
             input(f"Press enter to start solve {i}  ")
             opp_score = Score.single(opp)
             if not self.options['NO_INPUT_FLAG']:
-                if not isinstance(opp_score, float): time.sleep(1)
-                else: time.sleep(1)
+                if not isinstance(opp_score, float): time.sleep(opp.expected_score)
+                else: time.sleep(opp_score)
             print("""----------------\nOPPONENT FINISHED\n-----------------""")
             while True:
                 score = input("Enter your time or say restart: ")
@@ -392,8 +394,8 @@ class Event:
             if (self.win_num + self.los_num) == 1:
                 self.final_rankings.insert(0, winner)
                 self.roster_obj.checkRecords(winner, self.event_records, 1)
-                if isinstance(winner.win_count, int): winner.win_count += 1
-                else: winner.win_count = 1
+                winner.win_count += 1
+
 
 
 
