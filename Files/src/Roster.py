@@ -164,13 +164,13 @@ class Roster:
         mean_score = statistics.mean(user_times)
         sd_score = statistics.stdev(user_times)
         if difficulty in ["Easy", "easy"]:
-            exp_score = [(mean_score * 1.3), (mean_score * 0.05)]
+            exp_score = [(mean_score * 1.2), (mean_score * 0.05)]
             consistency = [(sd_score * 1.1), (sd_score * 0.1)]
         elif difficulty in ["medium", "Medium"]:
-            exp_score = [(mean_score * 1.2), (mean_score * 0.06)]
+            exp_score = [(mean_score * 1.15), (mean_score * 0.07)]
             consistency = [(sd_score * 1.1), (sd_score * 0.1)]
         else: # Hard
-            exp_score = [(mean_score * 1.1),(mean_score * 0.07)]
+            exp_score = [(mean_score * 1.1),(mean_score * 0.09)]
             consistency = [(sd_score * 1.1), (sd_score * 0.1)]
         return {"exp_score": exp_score, "consistency": consistency}
 
@@ -198,6 +198,11 @@ class Roster:
                    f'The {country} Open in {city}']
         r = random.randint(0,len(options)-1)
         return options[r]
+
+    def randomEntrants(self, num_entrants):
+        event_roster = random.sample(self.roster, num_entrants)
+        if self.roster[0] not in event_roster: event_roster.append(self.roster[0])
+        return event_roster
 
     def checkRecords(self, player, event_records, placement=None):
         self.checkPersonalRecords(player, placement)

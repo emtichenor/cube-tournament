@@ -17,6 +17,7 @@ class Player:
         self.best_single = self.to_float(args[9])
         self.best_ao5 = self.to_float(args[10])
         self.best_ao5_times = args[11]
+
         # For Event
         self.recent_ao5 = None
         self.recent_raw_scores = []
@@ -60,3 +61,7 @@ class Player:
 
     def format_seed(self):
         return f"{self.qualify_rank}. {self.fname} {self.lname}"
+
+    def setToZero(self):
+        if not isinstance(self.podium_count, int): self.podium_count = 0
+        if not isinstance(self.win_count, int): self.win_count = 0

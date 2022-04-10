@@ -12,17 +12,29 @@ def practiceTournament(options):
     event_name = roster.load()
     print(f'You will be competing in {event_name}.')
     while not options['NO_INPUT_FLAG']:
-        options['num_qualify'] = input("How many people qualify for the tournament? ")
+        if 'num_entrants' not in options: options['num_entrants'] = input(f"How many people are entering this tournament (Max {len(roster.roster)})? ")
         try:
+            options['num_entrants'] = int(options['num_entrants'])
+            if not 4 < options['num_entrants'] < len(roster.roster):
+                raise ValueError
+        except ValueError:
+            print(f"Incorrect Value! Please enter a number between 4 and {roster.roster}")
+            del options['num_entrants']
+            continue
+
+        if 'num_qualify' not in options: options['num_qualify'] = input("How many people qualify for the tournament? ")
+        try:
+
             options['num_qualify'] = int(options['num_qualify'])
-            if not 2 < options['num_qualify'] < len(roster.roster):
+            if not 1 < options['num_qualify'] < options['num_entrants']:
                 raise ValueError
             else: break
 
         except ValueError:
-            print(f"Incorrect Value! Please enter a number between 2 and {roster.roster}")
+            print(f"Incorrect Value! Please enter a number between 2 and {options['num_entrants']}")
             continue
-    event = Event(event_name, roster, options)
+    event_roster = roster.randomEntrants(options['num_entrants'])
+    event = Event(event_name, event_roster, roster, options)
     event.qualify()
 
     event.tournament()
@@ -32,6 +44,9 @@ def practiceTournament(options):
         event.saveQualify()
         event.saveTournament()
         roster.save()
+    del options['num_entrants']
+    del options['num_qualify']
+
 def season(options):
     options['SEASON_FLAG'] = True
     print("Not implemented")
