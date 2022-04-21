@@ -122,7 +122,7 @@ class Roster:
                     exp_score = None
                     continue
             if consistency is None:
-                print("The consistency score is the standard deviation each player will have from their expected score when generating their scores in a tournament.")
+                print("\n\nThe consistency score is the standard deviation each player will have from their expected score when generating their scores in a tournament.")
                 print("\nPlease enter the mean consistency score of players and the standard deviation of the consistency score to generate each players consistency score.")
                 ans = input("Values seperated by a comma: ")
                 consistency = re.split('; |, |,| ', ans)
