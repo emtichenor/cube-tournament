@@ -1,12 +1,13 @@
 import csv
 import statistics
 
+from Files.src.Campaign import Campaign
 from Files.src.Event import Event
 from Files.src.Roster import Roster
 from Files.Tests.Config import Config
 TEST_MODE = False
 
-def practiceTournament(options):
+def practiceTournamentMenu(options):
     options['CAMPAIGN_FLAG'] = False
     roster = Roster()
     event_name = roster.load()
@@ -47,22 +48,34 @@ def practiceTournament(options):
     del options['num_entrants']
     del options['num_qualify']
 
-def season(options):
-    options['SEASON_FLAG'] = True
-    print("Not implemented")
+def campaignMenu(options):
+    options['CAMPAIGN_FLAG'] = True
+    campaign = Campaign()
+    while not options['NO_INPUT_FLAG']:
+        c = input("\nPlease select an option\n1: Create New Campaign \n2: Load Campaign\n3: Quit to Main Menu\n")
+        if c == '1':
+            print("\nStarting new campaign!\n")
+            campaign.startup()
+        elif c == '2':
+            campaign.menu()
+        elif c == '3':
+            return
+        else:
+            print("Invalid Input!\n")
+
 
 def menu(test_mode=False):
     options = Config.get_options(test_mode)
     while True:
-        c = input("Please select an option\n1: Practice Tournament \n2: Campaign\n3: Quit\n")
-        if c == '3':
+        c = input("\n\nPlease select an option:\n1: Practice Tournament \n2: Campaign\n3: Quit\n")
+        if c == '1':
+            practiceTournamentMenu(options)
+        elif c == '2':
+            campaignMenu(options)
+        elif c == '3':
             print("Thanks for playing!")
             quit(0)
-        elif c == '2':
-            season(options)
-        elif c == '1':
-            practiceTournament(options)
-        else: print("Invalid Input!")
+        else: print("Invalid Input!\n")
 
 
 def garbage():
