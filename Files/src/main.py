@@ -5,48 +5,24 @@ from Files.src.Campaign import Campaign
 from Files.src.Event import Event
 from Files.src.Roster import Roster
 from Files.Tests.Config import Config
+from Files.src.PracticeTournament import PracticeTournament
 TEST_MODE = False
 
 def practiceTournamentMenu(options):
     options['CAMPAIGN_FLAG'] = False
-    roster = Roster()
-    event_name = roster.load()
-    print(f'You will be competing in {event_name}.')
+    pt = PracticeTournament(options)
     while not options['NO_INPUT_FLAG']:
-        if 'num_entrants' not in options: options['num_entrants'] = input(f"How many people are entering this tournament (Max {len(roster.roster)})? ")
-        try:
-            options['num_entrants'] = int(options['num_entrants'])
-            if not 4 < options['num_entrants'] < len(roster.roster):
-                raise ValueError
-        except ValueError:
-            print(f"Incorrect Value! Please enter a number between 4 and {roster.roster}")
-            del options['num_entrants']
-            continue
+        c = input("\nPlease select an option\n1: Create New Roster \n2: Load Roster\n3: Quit to Main Menu\n")
+        if c == '1':
+            print("\nCreating New Roster!\n")
+            pt.createRoster()
+        elif c == '2':
+            pt.loadRoster()
+        elif c == '3':
+            return
+        else:
+            print("Invalid Input!\n")
 
-        if 'num_qualify' not in options: options['num_qualify'] = input("How many people qualify for the tournament? ")
-        try:
-
-            options['num_qualify'] = int(options['num_qualify'])
-            if not 1 < options['num_qualify'] < options['num_entrants']:
-                raise ValueError
-            else: break
-
-        except ValueError:
-            print(f"Incorrect Value! Please enter a number between 2 and {options['num_entrants']}")
-            continue
-    event_roster = roster.randomEntrants(options['num_entrants'])
-    event = Event(event_name, event_roster, roster, options)
-    event.qualify()
-
-    event.tournament()
-
-    if options['SAVE_FLAG']:
-        print("Saving...")
-        event.saveQualify()
-        event.saveTournament()
-        roster.save()
-    del options['num_entrants']
-    del options['num_qualify']
 
 def campaignMenu(options):
     options['CAMPAIGN_FLAG'] = True

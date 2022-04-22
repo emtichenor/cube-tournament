@@ -15,6 +15,7 @@ class Roster:
         self.roster = []
         self.header = []
         self.all_time_records = {"Best Single": {}, "Best AO5": {}}
+        self.roster_name = None
         self.campaign_flag = campaign
         self.event_num = 0
         self.event_name = None
@@ -59,8 +60,30 @@ class Roster:
                     csvwriter.writerow(person.to_csv())
                 csvfile.close()
 
-    def generateRoster(self, filepath):
+    def inputsForNewRoster(self):
+        if self.campaign_flag:
+            roster_folder = "Campaigns"
+        else:
+            roster_folder = "Practice_Tournaments"
+        for _ in range(100):
+            try:
+                self.campaign_name = input("Please enter a campaign name: ")
+                os.mkdir(f"../Data/{roster_folder}/{self.roster_name}")
+                break
+            except OSError as error:
+                print(f"A roster named {self.roster_name} already exists!\n")
+        os.mkdir(f"../Data/{roster_folder}/{self.roster_name}/Tournaments")
+        os.mkdir(f"../Data/{roster_folder}/{self.roster_name}/Rosters")
+        if self.campaign_flag:
+            os.mkdir(f"../Data/{roster_folder}/{self.roster_name}/Schedules")
+
+        self.user_fname = input("Please enter your first name: ")
+        self.user_lname = input("Please enter your last name: ")
+        return f"../Data/{roster_folder}/{self.roster_name}/Rosters/inital_roster.csv"
+
+    def generateRoster(self):
         self.roster = []
+        filepath = self.inputsForNewRoster()
         roster_values = {}
         file = open('../Data/Rosters/Templates/main_roster_template.csv')
         csvreader = csv.reader(file)
