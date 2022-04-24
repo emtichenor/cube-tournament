@@ -1,5 +1,6 @@
 import csv
 import re
+import shutil
 import statistics
 import time
 
@@ -18,14 +19,14 @@ class Roster:
         self.roster_name = None
         self.campaign_flag = campaign
         self.event_num = 0
+        if self.campaign_flag:
+            self.roster_folder = "Campaigns"
+        else:
+            self.roster_folder = "Practice_Tournaments"
 
     def load(self, filename):
-        if self.campaign_flag:
-            roster_folder = "Campaigns"
-        else:
-            roster_folder = "Practice_Tournaments"
-
-        file = open(f'../Data/{roster_folder}/{filename}/Rosters/current_roster.csv')
+        self.roster_name = filename
+        file = open(f'../Data/{self.roster_folder}/{filename}/Rosters/current_roster.csv')
         csvreader = csv.reader(file)
         self.event_num = int(next(csvreader)[1]) + 1
         records = next(csvreader)
@@ -41,14 +42,10 @@ class Roster:
 
 
     def save(self, filename):
-        if self.campaign_flag:
-            roster_folder = "Campaigns"
-        else:
-            roster_folder = "Practice_Tournaments"
         now = datetime.now()
         timestamp = now.strftime("%m%d%Y_%H%M")
-        backup_filepath = f'../Data/{roster_folder}/{filename}/Rosters/Backups/{self.event_num}_old_roster_{timestamp}.csv'
-        current_filepath = f'../Data/{roster_folder}/{filename}/Rosters/current_roster.csv'
+        backup_filepath = f'../Data/{self.roster_folder}/{filename}/Rosters/Backups/{self.event_num}_old_roster_{timestamp}.csv'
+        current_filepath = f'../Data/{self.roster_folder}/{filename}/Rosters/current_roster.csv'
 
         if path.exists(current_filepath):
             src = path.realpath(current_filepath)
@@ -67,21 +64,18 @@ class Roster:
             csvfile.close()
 
     def inputsForNewRoster(self):
-        if self.campaign_flag:
-            roster_folder = "Campaigns"
-        else:
-            roster_folder = "Practice_Tournaments"
         for _ in range(100):
             try:
                 self.roster_name = input("Please enter a name for your save file: ")
-                os.mkdir(f"../Data/{roster_folder}/{self.roster_name}")
+                os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}")
                 break
             except OSError as error:
                 print(f"A roster named {self.roster_name} already exists!\n")
-        os.mkdir(f"../Data/{roster_folder}/{self.roster_name}/Tournaments")
-        os.mkdir(f"../Data/{roster_folder}/{self.roster_name}/Rosters")
+        os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}/Tournaments")
+        os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}/Rosters")
+        os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}/Rosters/Backups")
         if self.campaign_flag:
-            os.mkdir(f"../Data/{roster_folder}/{self.roster_name}/Schedules")
+            os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}/Schedules")
         self.load_user = []
         self.load_user.append(input("Please enter your first name: "))
         self.load_user.append(input("Please enter your last name: "))
@@ -96,7 +90,7 @@ class Roster:
             except ValueError as error:
                 print(f"Please enter a number for your age!\n")
 
-        return f"../Data/{roster_folder}/{self.roster_name}/Rosters/inital_roster.csv"
+        return f"../Data/{self.roster_folder}/{self.roster_name}/Rosters/"
 
     def generateRoster(self):
         self.roster = []
@@ -122,13 +116,14 @@ class Roster:
             else:
                 print("Invalid input!")
                 continue
-        with open(filepath, 'w', newline='') as csvfile:
+        with open(f"{filepath}/initial_roster.csv", 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["NumEvents", self.event_num])
 
             csvwriter.writerow(["N/A"])
             csvwriter.writerow(header)
-            csvwriter.writerow(self.load_user.append('N/A' for i in range(len(self.roster[0]))))
+            self.load_user += ['N/A' for i in range(len(self.roster[0]))]
+            csvwriter.writerow(self.load_user)
             exp_score = roster_values["exp_score"][0]
             exp_score_sd = roster_values["exp_score"][1]
             consistency = roster_values["consistency"][0]
@@ -141,7 +136,14 @@ class Roster:
                         person[2] = random.randint(-27, 9)
                 csvwriter.writerow(person)
             csvfile.close()
+        shutil.copyfile(f"{filepath}/initial_roster.csv", f"{filepath}/current_roster.csv")
 
+        #loads players correctly
+        temp = [Player(self.load_user)]
+        for person in self.roster:
+            temp.append(Player(person))
+        self.roster = temp
+        return self.roster_name
     def generateCustomRoster(self):
         print("\n\nThe skill of players is randomly generated based on a normal distribution.")
         print("Players have an expected score and a consistency metric.")
@@ -241,7 +243,9 @@ class Roster:
 
     def randomEntrants(self, num_entrants):
         event_roster = random.sample(self.roster, num_entrants)
-        if self.roster[0] not in event_roster: event_roster.append(self.roster[0])
+        if self.roster[0] not in event_roster:
+            event_roster.pop()
+            event_roster.append(self.roster[0])
         return event_roster
 
     def checkRecords(self, player, event_records, placement=None):

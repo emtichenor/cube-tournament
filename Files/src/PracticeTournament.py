@@ -24,7 +24,7 @@ class PracticeTournament:
                     if selected_num < 1 or selected_num > len(save_names):
                         raise ValueError
                     else:
-                        self.selected_name = save_names[selected_num]
+                        self.selected_name = save_names[selected_num-1]
                         break
                 except ValueError:
                     print("Invalid input!")
@@ -39,17 +39,18 @@ class PracticeTournament:
                 self.displayRecords()
             elif c == '3':
                 print("Quitting to main menu.\n")
+                self.roster = []
                 break
             else:
                 print("\n\nInvalid Input!\n")
 
     def createRoster(self):
-        self.roster.generateRoster()
-        self.runEvent()
+        self.selected_name = self.roster.generateRoster()
+        self.menu()
 
 
     def inputNumPlayers(self):
-        roster_len = (self.roster.roster)
+        roster_len = len(self.roster.roster)
         while True:
             if 'num_entrants' not in self.options: self.options['num_entrants'] = input(
                 f"How many people are entering this tournament (Max {roster_len})? ")
@@ -82,6 +83,7 @@ class PracticeTournament:
         self.event = Event(event_name, event_roster, self.roster, self.options)
         self.event.qualify()
         self.event.tournament()
+        self.saveEvent()
 
     def saveEvent(self):
         if self.options['SAVE_FLAG']:

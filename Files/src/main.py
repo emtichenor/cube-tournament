@@ -57,12 +57,13 @@ def menu(test_mode=False):
 def garbage():
     roster = [3,3,3]
     load_user = []
-    load_user.append('N/A' for i in range(len(roster)))
+    load_user += ['N/A' for i in range(len(roster))]
+
     print(load_user)
     quit()
 
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
 
-    garbage()
+    #garbage()
     menu()

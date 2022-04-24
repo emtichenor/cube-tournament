@@ -24,7 +24,7 @@ class Event:
     def qualify(self):
         self.total_entrants = len(self.event_roster)
         for player in self.event_roster:
-            if player.fname == "Emerson":
+            if player.expected_score == "N/A":
                 scores = self.userQualify()
                 self.user = player
             else:
