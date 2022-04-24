@@ -24,7 +24,7 @@ class Event:
     def qualify(self):
         self.total_entrants = len(self.event_roster)
         for player in self.event_roster:
-            if player.fname == "Emerson":
+            if player.expected_score == "N/A":
                 scores = self.userQualify()
                 self.user = player
             else:
@@ -147,11 +147,9 @@ class Event:
             name = self.name
             name.replace(" ", "_")
             if not self.campaign_flag:
-                filename = f'../Data/Practice_Tournaments/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
+                filename = f'../Data/Practice_Tournaments/{self.roster_obj.roster_name}/Tournaments/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
             else:
-                path = f'../Data/Season/REPLACE WITH SEASON NAME VARIABLE/{name}'
-                os.makedirs(path, exist_ok=True)
-                filename = f'../Data/Season/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
+                filename = f'../Data/Campaigns/{self.roster_obj.roster_name}/Tournaments/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
             with open(filename, 'w', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow([self.name])
@@ -167,9 +165,9 @@ class Event:
         name = self.name
         name.replace(" ", "_")
         if not self.campaign_flag:
-            filename = f'../Data/Practice_Tournaments/{self.roster_obj.event_num}_{name}_final_standings.csv'
+            filename = f'../Data/Practice_Tournaments/{self.roster_obj.roster_name}/Tournaments/{self.roster_obj.event_num}_{name}_final_standings.csv'
         else:
-            filename = f'../Data/Season/INSERT SEASON HERE/{self.roster_obj.event_num}_{name}_final_standings.csv'
+            filename = f'../Data/Campaigns/{self.roster_obj.roster_name}/Tournaments/{self.roster_obj.event_num}_{name}_final_standings.csv'
         with open(filename, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             event_records = ['Best Single', self.event_records['Best Single']['score'], self.event_records['Best Single']['name'],

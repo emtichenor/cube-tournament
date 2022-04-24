@@ -39,19 +39,7 @@ class Campaign:
         self.roster.roster = []
         return
     def startup(self):
-        for _ in range(100):
-            try:
-                self.campaign_name = input("Please enter a campaign name: ")
-                os.mkdir(f"../Data/Campaigns/{self.campaign_name}")
-                break
-            except OSError as error:
-                print(f"A campaign named {self.campaign_name} already exists!\n")
-        os.mkdir(f"../Data/Campaigns/{self.campaign_name}/Tournaments")
-        os.mkdir(f"../Data/Campaigns/{self.campaign_name}/Rosters")
-        os.mkdir(f"../Data/Campaigns/{self.campaign_name}/Schedules")
-        self.fname = input("Please enter your first name: ")
-        self.lname = input("Please enter your last name: ")
-        self.roster.generateRoster(f"../Data/Campaigns/{self.campaign_name}/Rosters/inital_roster.csv")
+        self.roster.generateRoster()
 
 
         self.generateSeason()
