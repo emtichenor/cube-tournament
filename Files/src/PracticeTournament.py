@@ -1,3 +1,5 @@
+import os
+
 from Files.src.Event import Event
 from Files.src.Roster import Roster
 
@@ -10,22 +12,32 @@ class PracticeTournament:
 
     def menu(self):
         if not self.roster.roster:
-            #TODO user input
-            #self.load("placeholder")
-            print("Would run load here.")
+            save_names = os.listdir("../Data/Practice_Tournaments")
+            print("Please select a save file by entering its number:")
+            count = 1
+            for name in save_names:
+                print(f"{count} {name}")
+                count += 1
+            while True:
+                try:
+                    selected_num = int(input("Enter save number: "))
+                    if selected_num < 1 or selected_num > len(save_names):
+                        raise ValueError
+                    else:
+                        self.selected_name = save_names[selected_num]
+                        break
+                except ValueError:
+                    print("Invalid input!")
+            self.roster.load(self.selected_name)
         while True:
-            print(f"\nCampgaign: {self.campaign_name}")
-            c = input("\nPlease select an option\n1: Play Next Event \n2: Schedule\n3: Standings\n4: Records\n5: Quit\n")
+            print(f"\nPractice Tournament: {self.selected_name}")
+            c = input("\nPlease select an option\n1: Play Next Event \n2: Records\n3: Quit\n")
             if c == '1':
                 print("Starting new event!\n")
-                self.nextEvent()
+                self.runEvent()
             elif c == '2':
-                self.displaySchedule()
-            elif c == '3':
-                self.displayStandings()
-            elif c == '4':
                 self.displayRecords()
-            elif c == '5':
+            elif c == '3':
                 print("Quitting to main menu.\n")
                 break
             else:
@@ -34,9 +46,6 @@ class PracticeTournament:
     def createRoster(self):
         self.roster.generateRoster()
         self.runEvent()
-
-    def loadRoster(self):
-        return
 
 
     def inputNumPlayers(self):
@@ -79,7 +88,10 @@ class PracticeTournament:
             print("Saving...")
             self.event.saveQualify()
             self.event.saveTournament()
-            self.roster.save()
+            self.roster.save(self.selected_name)
+
+    def displayRecords(self):
+        return
   #
   #
   # roster = Roster()

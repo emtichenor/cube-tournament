@@ -17,7 +17,7 @@ def practiceTournamentMenu(options):
             print("\nCreating New Roster!\n")
             pt.createRoster()
         elif c == '2':
-            pt.loadRoster()
+            pt.menu()
         elif c == '3':
             return
         else:
@@ -55,14 +55,14 @@ def menu(test_mode=False):
 
 
 def garbage():
-    filename = f'../Data/Practice_Tournaments/1_test_final_standings.csv'
-    with open(filename, 'w', newline='') as csvfile:
-        csvwriter = csv.writer(csvfile)
-        csvwriter.writerow(["Rank", "First Name", "Last Name", "Event AVG", "Best Event Single","Best Event AO5", "Times", "Solves", "DNFs"])
+    roster = [3,3,3]
+    load_user = []
+    load_user.append('N/A' for i in range(len(roster)))
+    print(load_user)
     quit()
 
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
 
-    # garbage()
+    garbage()
     menu()
