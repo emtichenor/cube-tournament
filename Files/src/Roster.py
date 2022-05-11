@@ -221,7 +221,7 @@ class Roster:
         player[4] = round(player[4] * random.gauss(0.98, 0.01),2)
 
     @staticmethod
-    def randomTournamentName():
+    def randomTournamentName(invite=False):
         file = open('../Data/Practice_Tournaments/Event_List/world_cities.csv')
         csvreader = csv.reader(file)
         cities = []
@@ -238,6 +238,10 @@ class Roster:
                    f'The {city} Cup Sponsored by GAN', f'The {city} Big Double', f'The MoYu {city} Cup',
                    f'The {city} Open Tournament in {country}', f'The {country} Nationals in {city}', f'The {city} Big Double in {country}',
                    f'The {country} Open in {city}']
+        if invite:
+            options = [f'The {city} Invitational Tournament', f'{city} Invitational', f'{city} Cup', f'The {city} Cubing Invitational',
+                   f'The {city} Cup Sponsored by GAN', f'The {city} Big Double', f'The MoYu {city} Invitational Cup',
+                   f'The {city} Invite Only Tournament in {country}']
         r = random.randint(0,len(options)-1)
         return options[r]
 

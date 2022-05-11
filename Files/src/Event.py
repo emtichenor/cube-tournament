@@ -183,7 +183,7 @@ class Event:
                 i += 1
                 csvwriter.writerow(player_csv)
             csvfile.close()
-
+        return self.final_rankings
 
     def userQualify(self):
         welcome_str = f""" 

@@ -26,7 +26,7 @@ def practiceTournamentMenu(options):
 
 def campaignMenu(options):
     options['CAMPAIGN_FLAG'] = True
-    campaign = Campaign()
+    campaign = Campaign(options)
     while not options['NO_INPUT_FLAG']:
         c = input("\nPlease select an option\n1: Create New Campaign \n2: Load Campaign\n3: Quit to Main Menu\n")
         if c == '1':
