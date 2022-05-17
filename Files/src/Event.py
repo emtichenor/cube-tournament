@@ -20,6 +20,8 @@ class Event:
         self.event_records = {"Best Single": {}, "Best AO5":{}}
         self.options = options
         for player in event_roster: player.setToZero()
+        self.user = None
+        self.roster_obj.event_num += 1
 
     def qualify(self):
         self.total_entrants = len(self.event_roster)
@@ -35,15 +37,20 @@ class Event:
             player.qualify_times = scores['raw_scores']
 
             self.qualify_rankings.append(player)
-        self.qualify_rankings.sort(key=Event.get_score)
-        print(f'Your Average was [{self.user.recent_ao5}]')
-        print(f'with times of {Score.print_ao5_times(self.user.recent_raw_scores)}')
-        print(f"Cutoff for Qualification was: [{self.qualify_rankings[self.num_qualify-1].recent_ao5}]")
-        user_seed = self.qualify_rankings.index(self.user) + 1
-        if self.num_qualify > user_seed:
-            print(f'\nYou qualified! You will be seeded {ordinal(user_seed)} in the upcoming tournament.')
+        if self.user:
+            self.qualify_rankings.sort(key=Event.get_score)
+            print(f'Your Average was [{self.user.recent_ao5}]')
+            print(f'with times of {Score.print_ao5_times(self.user.recent_raw_scores)}')
+            print(f"Cutoff for Qualification was: [{self.qualify_rankings[self.num_qualify-1].recent_ao5}]")
+            user_seed = self.qualify_rankings.index(self.user) + 1
+            if self.num_qualify > user_seed:
+                print(f'\nYou qualified! You will be seeded {ordinal(user_seed)} in the upcoming tournament.')
+            else:
+                print(f'\nYou failed to qualify! You finished in {ordinal(user_seed)} place.')
+
         else:
-            print(f'\nYou failed to qualify! You finished in {ordinal(user_seed)} place.')
+            print("You did not have enough points to attend this event!")
+
         for _ in range(4):
             print(".")
             time.sleep(1)
@@ -116,7 +123,7 @@ class Event:
         print(f'The Best Single from this event was [{self.event_records["Best Single"]["score"]}] set by {self.event_records["Best Single"]["name"]}')
         print(f'The Best Average from this event was [{self.event_records["Best AO5"]["ao5"]}] set by {self.event_records["Best AO5"]["name"]}')
         print(f'with times of {Score.print_ao5_times(self.event_records["Best AO5"]["raw_scores"])}\n\n')
-        print(f'\n\nYou finished in {ordinal(self.user.final_rank)} place!\n')
+        if self.user: print(f'\n\nYou finished in {ordinal(self.user.final_rank)} place!\n')
         if not self.options['NO_INPUT_FLAG']: input("Press enter to go back to the main menu")
         print('\n\n\n\n\n\n----------------------------------------------------------------')
 

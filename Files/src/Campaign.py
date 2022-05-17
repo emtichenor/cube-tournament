@@ -108,6 +108,9 @@ class Campaign:
         header = next(csvreader)
         for person in csvreader:
             person[0] = int(person[0])
+            if len(person) > 3:
+                for i in range(3,len(person)):
+                    person[i] = int(person[i])
             self.season_rankings.append(person)
         file.close()
 
@@ -131,14 +134,10 @@ class Campaign:
 
     def runEvent(self):
         self.options['num_qualify'] = self.next_tournament[2]
-        # call sort roster
-        # #                for p in self.season_rankings:
-        #             if player.fname == p[1] and player.lname == p[2]:
-        #                 player.season_points = p[0]
         if self.next_tournament[0] > 8:
-            event_roster = self.season_roster[:50]
+            event_roster = self.sortRoster(50)
         elif self.next_tournament[0] > 6:
-            event_roster = self.season_roster[:100]
+            event_roster = self.sortRoster(100)
         else:
             event_roster = self.season_roster
         #TODO remove
@@ -155,7 +154,7 @@ class Campaign:
             self.event.saveQualify()
             final_rankings = self.event.saveTournament()
             self.roster.save(self.campaign_name)
-            self.roster.event_num += 1
+
 
             # Save season roster
             placing = 1
@@ -171,7 +170,7 @@ class Campaign:
                             print(s_player)
                             quit()
                         break
-            self.season_rankings.sort(reverse=True, key=lambda x: x[0])
+            self.season_rankings.sort(reverse=True, key=lambda x: (x[0], -min(x[3:])))
             schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
             season_num = len(os.listdir(schedule_path))
             roster_path = f"../Data/Campaigns/{self.campaign_name}/Rosters/"
@@ -217,5 +216,15 @@ class Campaign:
         for _ in range(8): points.append(1)
 
         return points[placing-1]
+
+    def sortRoster(self, roster_size):
+        event_roster = []
+        for p_rank in self.season_rankings[:roster_size]:
+            for player in self.season_roster:
+                if player.fname == p_rank[1] and player.lname == p_rank[2]:
+                    event_roster.append(player)
+                    break
+        return event_roster
+
 
 

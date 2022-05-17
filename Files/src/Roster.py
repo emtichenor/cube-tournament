@@ -18,7 +18,7 @@ class Roster:
         self.all_time_records = {"Best Single": {}, "Best AO5": {}}
         self.roster_name = None
         self.campaign_flag = campaign
-        self.event_num = 1
+        self.event_num = 0
         if self.campaign_flag:
             self.roster_folder = "Campaigns"
         else:
@@ -28,7 +28,7 @@ class Roster:
         self.roster_name = filename
         file = open(f'../Data/{self.roster_folder}/{filename}/Rosters/current_roster.csv')
         csvreader = csv.reader(file)
-        self.event_num = int(next(csvreader)[1]) + 1
+        self.event_num = int(next(csvreader)[1])
         records = next(csvreader)
         self.loadAllTimeRecords(records)
         self.header = next(csvreader)
