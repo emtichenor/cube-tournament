@@ -95,8 +95,8 @@ class Campaign:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["Points", "First Name", "Last Name", "Placings"])
             for player in self.season_roster:
-                self.season_rankings.append([0, player.fname, player.lname, []])
-                csvwriter.writerow([0, player.fname, player.lname, []])
+                self.season_rankings.append([0, player.fname, player.lname])
+                csvwriter.writerow([0, player.fname, player.lname])
             csvfile.close()
 
     def load(self):
@@ -107,6 +107,7 @@ class Campaign:
         csvreader = csv.reader(file)
         header = next(csvreader)
         for person in csvreader:
+            person[0] = int(person[0])
             self.season_rankings.append(person)
         file.close()
 
@@ -118,6 +119,8 @@ class Campaign:
         csvreader = csv.reader(file)
         header = next(csvreader)
         for tourn in csvreader:
+            tourn[0] = int(tourn[0])
+            tourn[2] = int(tourn[2])
             self.tournaments.append(tourn)
         file.close()
         for tourn in self.tournaments:
@@ -128,12 +131,19 @@ class Campaign:
 
     def runEvent(self):
         self.options['num_qualify'] = self.next_tournament[2]
+        # call sort roster
+        # #                for p in self.season_rankings:
+        #             if player.fname == p[1] and player.lname == p[2]:
+        #                 player.season_points = p[0]
         if self.next_tournament[0] > 8:
             event_roster = self.season_roster[:50]
         elif self.next_tournament[0] > 6:
             event_roster = self.season_roster[:100]
         else:
             event_roster = self.season_roster
+        #TODO remove
+        self.options['TEST_FLAG'] = True
+        self.options['TEST_USER_QUALI'] = [54.1,55.1,56.1,57.1,57.1]
         self.event = Event(self.next_tournament[1], event_roster, self.roster, self.options)
         self.event.qualify()
         self.event.tournament()
@@ -145,15 +155,21 @@ class Campaign:
             self.event.saveQualify()
             final_rankings = self.event.saveTournament()
             self.roster.save(self.campaign_name)
+            self.roster.event_num += 1
 
             # Save season roster
             placing = 1
             for player in final_rankings:
                 for s_player in self.season_rankings:
                     if player.fname == s_player[1] and player.lname == s_player[2]:
-                        s_player[3].append(placing)
-                        s_player[0] += self.calcPoints(placing)
-                        placing += 1
+                        #TODO remove
+                        try:
+                            s_player.append(placing)
+                            s_player[0] += self.calcPoints(placing)
+                            placing += 1
+                        except AttributeError:
+                            print(s_player)
+                            quit()
                         break
             self.season_rankings.sort(reverse=True, key=lambda x: x[0])
             schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
@@ -178,6 +194,12 @@ class Campaign:
                     tourn[4] = f"{final_rankings[1].fname} {final_rankings[1].lname}"
                     tourn[5] = f"{final_rankings[2].fname} {final_rankings[2].lname}"
                     isNext = True
+            with open(schedule_path+f"Season_{season_num}.csv", 'w', newline='') as csvfile:
+                csvwriter = csv.writer(csvfile)
+                csvwriter.writerow(['Num','Name','Num Quali','First','Second','Third'])
+                for tourn in self.tournaments:
+                    csvwriter.writerow(tourn)
+                csvfile.close()
 
 
     def displaySchedule(self):

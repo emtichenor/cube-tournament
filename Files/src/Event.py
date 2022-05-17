@@ -55,6 +55,7 @@ class Event:
                 self.roster_obj.checkRecords(player, self.event_records, player.qualify_rank)
             else:
                 self.roster_obj.checkRecords(player, self.event_records)
+                player.winners_bracket = True
             rank += 1
 
     def tournament(self):
@@ -192,14 +193,15 @@ class Event:
         """
         print(welcome_str)
         scores = []
-        for i in range(5):
-            if not self.options['TEST_FLAG']:
+        if not self.options['TEST_FLAG']:
+            for i in range(5):
                 score = input(f"Solve {i+1}: ")
                 if score != "DNF":
                     score = float(score)
-            else:
-                score = self.options['TEST_USER_QUALI']
-            scores.append(score)
+                scores.append(score)
+        else:
+            scores = self.options['TEST_USER_QUALI']
+
         return Score.ao5(scores)
 
     def userTournament(self):
@@ -373,7 +375,8 @@ class Event:
         self.setWinner(match, winner, loser)
         if self.active_matches_count > 8: match_sleep = 20 / self.active_matches_count
         else: match_sleep = 2.5
-        time.sleep(match_sleep)
+        #TODO remove
+        #time.sleep(match_sleep)
 
     def setWinner(self, match, winner, loser):
 
