@@ -28,7 +28,7 @@ class Roster:
         self.roster_name = filename
         file = open(f'../Data/{self.roster_folder}/{filename}/Rosters/current_roster.csv')
         csvreader = csv.reader(file)
-        self.event_num = int(next(csvreader)[1]) + 1
+        self.event_num = int(next(csvreader)[1])
         records = next(csvreader)
         self.loadAllTimeRecords(records)
         self.header = next(csvreader)
@@ -139,11 +139,13 @@ class Roster:
         shutil.copyfile(f"{filepath}/initial_roster.csv", f"{filepath}/current_roster.csv")
 
         #loads players correctly
+        self.header = ["First Name","Last Name","Age","Expected Time","Consistency","Best Placing","AVG Placing","Wins","Podiums","Best Single","Best AO5","Best AO5 Times"]
         temp = [Player(self.load_user)]
         for person in self.roster:
             temp.append(Player(person))
         self.roster = temp
         return self.roster_name
+
     def generateCustomRoster(self):
         print("\n\nThe skill of players is randomly generated based on a normal distribution.")
         print("Players have an expected score and a consistency metric.")
@@ -221,7 +223,7 @@ class Roster:
         player[4] = round(player[4] * random.gauss(0.98, 0.01),2)
 
     @staticmethod
-    def randomTournamentName():
+    def randomTournamentName(invite=False):
         file = open('../Data/Practice_Tournaments/Event_List/world_cities.csv')
         csvreader = csv.reader(file)
         cities = []
@@ -238,6 +240,10 @@ class Roster:
                    f'The {city} Cup Sponsored by GAN', f'The {city} Big Double', f'The MoYu {city} Cup',
                    f'The {city} Open Tournament in {country}', f'The {country} Nationals in {city}', f'The {city} Big Double in {country}',
                    f'The {country} Open in {city}']
+        if invite:
+            options = [f'The {city} Invitational Tournament', f'{city} Invitational', f'{city} Cup', f'The {city} Cubing Invitational',
+                   f'The {city} Cup Sponsored by GAN', f'The {city} Big Double', f'The MoYu {city} Invitational Cup',
+                   f'The {city} Invite Only Tournament in {country}']
         r = random.randint(0,len(options)-1)
         return options[r]
 
@@ -288,7 +294,7 @@ class Roster:
             if not player.best_event_ao5:
                 player.best_event_ao5 = 'DNF'
                 player.best_event_ao5_times = player.recent_raw_scores
-        elif not player.best_event_ao5:
+        elif not player.best_event_ao5 or player.best_event_ao5 == 'DNF':
             player.best_event_ao5 = player.recent_ao5
             player.best_event_ao5_times = player.recent_raw_scores
         elif player.recent_ao5 < player.best_event_ao5:
@@ -355,7 +361,8 @@ class Roster:
                 f"\nNew World AO5 Record by {player.fname} {player.lname} with an average of [{player.recent_ao5}]! "
                 f"Beat {self.all_time_records['Best AO5']['name']}'s average of [{self.all_time_records['Best AO5']['ao5']}]")
             print(line)
-            time.sleep(5)
+            #TODO remove
+            #time.sleep(5)
             self.all_time_records['Best AO5']['ao5'] = player.recent_ao5
             self.all_time_records['Best AO5']['raw_scores'] = player.recent_raw_scores
             self.all_time_records['Best AO5']['name'] = f'{player.fname} {player.lname}'
@@ -371,7 +378,8 @@ class Roster:
                 f"\nNew World Record Single by {player.fname} {player.lname} with a time of [{score}]! \n"
                 f"Beat {self.all_time_records['Best Single']['name']}'s time of [{self.all_time_records['Best Single']['score']}]")
             print("\n"+line)
-            time.sleep(5)
+            # TODO remove
+            # time.sleep(5)
             self.all_time_records['Best Single']['score'] = score
             self.all_time_records['Best Single']['name'] = f'{player.fname} {player.lname}'
 

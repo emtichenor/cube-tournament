@@ -26,7 +26,7 @@ def practiceTournamentMenu(options):
 
 def campaignMenu(options):
     options['CAMPAIGN_FLAG'] = True
-    campaign = Campaign()
+    campaign = Campaign(options)
     while not options['NO_INPUT_FLAG']:
         c = input("\nPlease select an option\n1: Create New Campaign \n2: Load Campaign\n3: Quit to Main Menu\n")
         if c == '1':
@@ -55,11 +55,27 @@ def menu(test_mode=False):
 
 
 def garbage():
-    roster = [3,3,3]
-    load_user = []
-    load_user += ['N/A' for i in range(len(roster))]
 
-    print(load_user)
+    file = f'../Data/Rosters/Templates/main_roster_template.csv'
+    fp = open(file)
+    csvreader = csv.reader(fp)
+
+    records = next(csvreader)
+    t_roster = []
+    roster = []
+    for row in csvreader:
+        pers = row[0] + " " + row[1]
+        if pers not in t_roster:
+            t_roster.append(pers)
+            roster.append(row)
+    fp.close()
+    with open(file, 'w', newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        print(records)
+        csvwriter.writerow(records)
+        for row in roster:
+            csvwriter.writerow(row)
+        csvfile.close()
     quit()
 
 if __name__ == "__main__":

@@ -7,7 +7,7 @@ class Player:
     def __init__(self, args):
         self.fname = args[0]
         self.lname = args[1]
-        self.age = args[2]
+        self.age = self.to_int(args[2])
         self.expected_score = self.to_float(args[3])
         self.consistency = self.to_float(args[4])
         self.best_placing = self.to_int(args[5])
