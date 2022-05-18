@@ -15,6 +15,8 @@ class Campaign:
         self.campaign_name = ""
         self.season_roster = []
         self.season_rankings = []
+        self.season_num = 0
+
 
     def menu(self):
         if not self.roster.roster:
@@ -40,7 +42,11 @@ class Campaign:
             self.roster.load(self.campaign_name)
             self.load()
         while True:
+            schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
+            self.season_num = len(os.listdir(schedule_path))
             print(f"\nCampgaign: {self.campaign_name}")
+            print(f"Season {self.season_num}")
+            print(f"Next Event: {self.next_tournament[0]}. {self.next_tournament[1]}")
             c = input("\nPlease select an option\n1: Play Next Event \n2: Schedule\n3: Standings\n4: Records\n5: Quit\n")
             if c == '1':
                 print("Starting new event!\n")
@@ -73,11 +79,10 @@ class Campaign:
             elif i < 8: quali = 64
             else: quali = 32
             self.tournaments.append([(i+1),name,quali,"N/A","N/A","N/A"])
-
-        #TODO insert Championship here
         schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
-        season_num = len(os.listdir(schedule_path)) + 1
-        schedule_path = schedule_path + f"Season_{season_num}.csv"
+        self.season_num = self.season_num + 1
+        self.tournaments.append([11, f"Season {self.season_num} Championship",16,"N/A","N/A","N/A"])
+        schedule_path = schedule_path + f"Season_{self.season_num}.csv"
         with open(schedule_path , 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["Num", "Name", "Num Quali", "First", "Second", "Third"])
@@ -85,12 +90,13 @@ class Campaign:
                 csvwriter.writerow(tourn)
             csvfile.close()
         self.next_tournament = self.tournaments[0]
+        self.season_roster = []
         for player in self.roster.roster:
-            if player.age >= 18:
+            if (player.age >= 18 and player.age <= 30) or not isinstance(player.expected_score, float):
                 self.season_roster.append(player)
 
         roster_path = f"../Data/Campaigns/{self.campaign_name}/Rosters/"
-        roster_path = roster_path + f"Season_{season_num}.csv"
+        roster_path = roster_path + f"Season_{self.season_num}.csv"
         with open(roster_path, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["Points", "First Name", "Last Name", "Placings"])
@@ -99,11 +105,17 @@ class Campaign:
                 csvwriter.writerow([0, player.fname, player.lname])
             csvfile.close()
 
+    def nextSeason(self):
+        for player in self.roster.roster:
+            player.age += 1
+            self.roster.improve(player)
+        self.generateSeason()
+
     def load(self):
         self.season_rankings = []
         schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
-        season_num = len(os.listdir(schedule_path))
-        file = open(f'../Data/Campaigns/{self.campaign_name}/Rosters/Season_{season_num}.csv')
+        self.season_num = len(os.listdir(schedule_path))
+        file = open(f'../Data/Campaigns/{self.campaign_name}/Rosters/Season_{self.season_num}.csv')
         csvreader = csv.reader(file)
         header = next(csvreader)
         for person in csvreader:
@@ -118,7 +130,7 @@ class Campaign:
             if player.age >= 18:
                 self.season_roster.append(player)
 
-        file = open(f'../Data/Campaigns/{self.campaign_name}/Schedules/Season_{season_num}.csv')
+        file = open(f'../Data/Campaigns/{self.campaign_name}/Schedules/Season_{self.season_num}.csv')
         csvreader = csv.reader(file)
         header = next(csvreader)
         for tourn in csvreader:
@@ -134,7 +146,10 @@ class Campaign:
 
     def runEvent(self):
         self.options['num_qualify'] = self.next_tournament[2]
-        if self.next_tournament[0] > 8:
+        if self.next_tournament[0] > 10:
+            self.runChampionship()
+            return
+        elif self.next_tournament[0] > 8:
             event_roster = self.sortRoster(50)
         elif self.next_tournament[0] > 6:
             event_roster = self.sortRoster(100)
@@ -148,7 +163,41 @@ class Campaign:
         self.event.tournament()
         self.saveEvent()
 
-    def saveEvent(self):
+    def runChampionship(self):
+        event_roster = self.sortRoster(16)
+        self.event = Event(self.next_tournament[1], event_roster, self.roster, self.options)
+        for p in event_roster:
+            p.qualify_rank = event_roster.index(p) + 1
+            if not isinstance(p.expected_score, float):
+                self.event.user = p
+                break
+        print(f"\n\nWelcome to the {self.next_tournament[1]}!\n\n")
+        self.event.qualify_rankings = event_roster.copy()
+        self.event.tournament()
+
+        final_rankings = self.event.saveTournament()
+        winner = final_rankings[0]
+        print(f"\n{winner.fname} {winner.lname} won the {self.next_tournament[1]}!\n")
+        winner.championships += 1
+        self.roster.save(self.campaign_name)
+
+        self.next_tournament[3] = f"{final_rankings[0].fname} {final_rankings[0].lname}"
+        self.next_tournament[4] = f"{final_rankings[1].fname} {final_rankings[1].lname}"
+        self.next_tournament[5] = f"{final_rankings[2].fname} {final_rankings[2].lname}"
+
+        schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
+        with open(schedule_path+f"Season_{self.season_num}.csv", 'w', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(['Num', 'Name', 'Num Quali', 'First', 'Second', 'Third'])
+            for tourn in self.tournaments:
+                csvwriter.writerow(tourn)
+            csvfile.close()
+
+
+        self.nextSeason()
+
+
+    def saveEvent(self, championship=False):
         if self.options['SAVE_FLAG']:
             print("Saving...")
             self.event.saveQualify()
@@ -172,9 +221,8 @@ class Campaign:
                         break
             self.season_rankings.sort(reverse=True, key=lambda x: (x[0], -min(x[3:])))
             schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
-            season_num = len(os.listdir(schedule_path))
             roster_path = f"../Data/Campaigns/{self.campaign_name}/Rosters/"
-            roster_path = roster_path + f"Season_{season_num}.csv"
+            roster_path = roster_path + f"Season_{self.season_num}.csv"
             with open(roster_path, 'w', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow(["Points", "First Name", "Last Name", "Placings"])
@@ -193,13 +241,14 @@ class Campaign:
                     tourn[4] = f"{final_rankings[1].fname} {final_rankings[1].lname}"
                     tourn[5] = f"{final_rankings[2].fname} {final_rankings[2].lname}"
                     isNext = True
-            with open(schedule_path+f"Season_{season_num}.csv", 'w', newline='') as csvfile:
+            with open(schedule_path+f"Season_{self.season_num}.csv", 'w', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow(['Num','Name','Num Quali','First','Second','Third'])
                 for tourn in self.tournaments:
                     csvwriter.writerow(tourn)
                 csvfile.close()
-
+            if not self.next_tournament and not championship:
+                self.runChampionship()
 
     def displaySchedule(self):
         pass

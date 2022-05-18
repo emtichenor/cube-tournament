@@ -12,6 +12,7 @@ class Player:
         self.consistency = self.to_float(args[4])
         self.best_placing = self.to_int(args[5])
         self.avg_placing = self.to_float(args[6])
+        self.championships = 0 #self.to_int(args[6]) #TODO fix this
         self.win_count = self.to_int(args[7])
         self.podium_count = self.to_int(args[8])
         self.best_single = self.to_float(args[9])

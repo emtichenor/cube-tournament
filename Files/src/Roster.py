@@ -96,12 +96,7 @@ class Roster:
         self.roster = []
         filepath = self.inputsForNewRoster()
         roster_values = {}
-        file = open('../Data/Rosters/Templates/main_roster_template.csv')
-        csvreader = csv.reader(file)
-        header = next(csvreader)
-        for row in csvreader:
-            self.roster.append(row)
-        file.close()
+        self.generateFakeNames()
         for _ in range(10000):
             print("Would you like to customize the roster generation or generate it based on your solves?")
             ans = input("Enter 'custom' to customize or enter 'solve' to auto generate: ")
@@ -122,15 +117,15 @@ class Roster:
 
             csvwriter.writerow(["N/A"])
             csvwriter.writerow(header)
-            self.load_user += ['N/A' for i in range(len(self.roster[0]))]
+            self.load_user += ['N/A' for i in range(len(self.roster[0])-3)]
             csvwriter.writerow(self.load_user)
             exp_score = roster_values["exp_score"][0]
             exp_score_sd = roster_values["exp_score"][1]
             consistency = roster_values["consistency"][0]
             consistency_sd = roster_values["consistency"][1]
             for person in self.roster:
-                person[3] = round(random.gauss(exp_score,exp_score_sd),3)
-                person[4] = round(random.gauss(consistency,consistency_sd),2)
+                person[3] = round(random.gauss(exp_score, exp_score_sd), 3)
+                person[4] = round(random.gauss(consistency, consistency_sd), 2)
                 if self.campaign_flag:
                     if random.uniform(0,100) > 20:
                         person[2] = random.randint(-27, 9)
@@ -219,8 +214,13 @@ class Roster:
         return {"exp_score": exp_score, "consistency": consistency}
 
     def improve(self, player):
-        player[3] = round(player[3] * random.gauss(0.99, 0.01),3)
-        player[4] = round(player[4] * random.gauss(0.98, 0.01),2)
+        if isinstance(player, list):
+            player[3] = round(player[3] * random.gauss(0.99, 0.01),3)
+            player[4] = round(player[4] * random.gauss(0.98, 0.01),2)
+        else:
+            if isinstance(player.expected_score, float):
+                player.expected_score = round(player.expected_score * random.gauss(0.99, 0.01), 3)
+                player.consistency = round(player.consistency * random.gauss(0.98, 0.01), 2)
 
     @staticmethod
     def randomTournamentName(invite=False):
@@ -403,3 +403,6 @@ class Roster:
             self.all_time_records['Best AO5']['ao5'] = float(records[4])
             self.all_time_records['Best AO5']['name'] = records[5]
             self.all_time_records['Best AO5']['raw_scores'] = records[6]
+
+    def generateFakeNames(self):
+        pass
