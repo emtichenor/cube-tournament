@@ -6,6 +6,7 @@ from Files.src.Event import Event
 from Files.src.Roster import Roster
 from Files.Tests.Config import Config
 from Files.src.PracticeTournament import PracticeTournament
+from faker import Faker
 TEST_MODE = False
 
 def practiceTournamentMenu(options):
@@ -55,29 +56,21 @@ def menu(test_mode=False):
 
 
 def garbage():
+    fake = Faker()
+    thelist = [fake.unique.name().split()for i in range(10000)]
+    x = []
+    for i in thelist:
 
-    file = f'../Data/Rosters/Templates/main_roster_template.csv'
-    fp = open(file)
-    csvreader = csv.reader(fp)
+        if len(i) > 2:
 
-    records = next(csvreader)
-    t_roster = []
-    roster = []
-    for row in csvreader:
-        pers = row[0] + " " + row[1]
-        if pers not in t_roster:
-            t_roster.append(pers)
-            roster.append(row)
-    fp.close()
-    with open(file, 'w', newline='') as csvfile:
-        csvwriter = csv.writer(csvfile)
-        print(records)
-        csvwriter.writerow(records)
-        for row in roster:
-            csvwriter.writerow(row)
-        csvfile.close()
+            if any(word in i[0] for word in [".", "Miss"]):
+                i.pop(0)
+            if len(i) > 2 and len(i[2]) < 4:
+                i.pop(2)
+    for x in thelist:
+        assert len(x) == 2
+    print(thelist)
     quit()
-
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
 

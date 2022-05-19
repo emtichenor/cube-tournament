@@ -4,6 +4,8 @@ import shutil
 import statistics
 import time
 
+from faker import Faker
+
 from Files.src.Player import Player
 from datetime import datetime
 import random
@@ -17,6 +19,7 @@ class Roster:
         self.header = []
         self.all_time_records = {"Best Single": {}, "Best AO5": {}}
         self.roster_name = None
+        self.roster_values = {}
         self.campaign_flag = campaign
         self.event_num = 0
         if self.campaign_flag:
@@ -28,7 +31,10 @@ class Roster:
         self.roster_name = filename
         file = open(f'../Data/{self.roster_folder}/{filename}/Rosters/current_roster.csv')
         csvreader = csv.reader(file)
-        self.event_num = int(next(csvreader)[1])
+        exp_score = next(csvreader)
+        self.roster_values["exp_score"] = [float(x) for x in exp_score[1:]]
+        consistency = next(csvreader)
+        self.roster_values["consistency"] = [float(x) for x in consistency[1:]]
         records = next(csvreader)
         self.loadAllTimeRecords(records)
         self.header = next(csvreader)
@@ -37,6 +43,12 @@ class Roster:
             self.roster.append(person)
         file.close()
 
+        if self.campaign_flag:
+            self.season_num = self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/")))
+            self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/Season_{self.season_num}")) / 2)
+        else:
+            self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/")) / 2)
+
 
 
 
@@ -44,9 +56,11 @@ class Roster:
     def save(self, filename):
         now = datetime.now()
         timestamp = now.strftime("%m%d%Y_%H%M")
-        backup_filepath = f'../Data/{self.roster_folder}/{filename}/Rosters/Backups/{self.event_num}_old_roster_{timestamp}.csv'
+        if self.campaign_flag:
+            backup_filepath = f'../Data/{self.roster_folder}/{filename}/Rosters/Backups/{self.season_num}_{self.event_num}_old_roster_{timestamp}.csv'
+        else:
+            backup_filepath = f'../Data/{self.roster_folder}/{filename}/Rosters/Backups/{self.event_num}_old_roster_{timestamp}.csv'
         current_filepath = f'../Data/{self.roster_folder}/{filename}/Rosters/current_roster.csv'
-
         if path.exists(current_filepath):
             src = path.realpath(current_filepath)
             os.rename(current_filepath, backup_filepath)
@@ -54,11 +68,12 @@ class Roster:
 
         with open(current_filepath, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(["NumEvents",self.event_num])
+            csvwriter.writerow(["exp_score"]+self.roster_values["exp_score"])
+            csvwriter.writerow(["consistency"] + self.roster_values["consistency"])
             record_to_csv = ['Best Single', self.all_time_records['Best Single']['score'], self.all_time_records['Best Single']['name'],
                              'Best AO5', self.all_time_records['Best AO5']['ao5'], self.all_time_records['Best AO5']['name'], self.all_time_records['Best AO5']['raw_scores']]
             csvwriter.writerow(record_to_csv)
-            csvwriter.writerow(self.header)
+            csvwriter.writerow(Player.getHeader())
             for person in self.roster:
                 csvwriter.writerow(person.to_csv())
             csvfile.close()
@@ -76,6 +91,7 @@ class Roster:
         os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}/Rosters/Backups")
         if self.campaign_flag:
             os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}/Schedules")
+            os.mkdir(f"../Data/Campaigns/{self.roster_name}/Tournaments/Season_1")
         self.load_user = []
         self.load_user.append(input("Please enter your first name: "))
         self.load_user.append(input("Please enter your last name: "))
@@ -92,16 +108,11 @@ class Roster:
 
         return f"../Data/{self.roster_folder}/{self.roster_name}/Rosters/"
 
-    def generateRoster(self):
+    def generateRoster(self, roster_size):
         self.roster = []
         filepath = self.inputsForNewRoster()
         roster_values = {}
-        file = open('../Data/Rosters/Templates/main_roster_template.csv')
-        csvreader = csv.reader(file)
-        header = next(csvreader)
-        for row in csvreader:
-            self.roster.append(row)
-        file.close()
+        initial_roster = self.generateFakeNames(roster_size)
         for _ in range(10000):
             print("Would you like to customize the roster generation or generate it based on your solves?")
             ans = input("Enter 'custom' to customize or enter 'solve' to auto generate: ")
@@ -118,32 +129,27 @@ class Roster:
                 continue
         with open(f"{filepath}/initial_roster.csv", 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(["NumEvents", self.event_num])
-
+            csvwriter.writerow(["exp_score"] + roster_values["exp_score"])
+            csvwriter.writerow(["consistency"] + roster_values["consistency"])
             csvwriter.writerow(["N/A"])
-            csvwriter.writerow(header)
-            self.load_user += ['N/A' for i in range(len(self.roster[0]))]
+            csvwriter.writerow(Player.getHeader())
+            self.load_user += ['N/A' for i in range(len(Player.getHeader())-3)]
             csvwriter.writerow(self.load_user)
             exp_score = roster_values["exp_score"][0]
             exp_score_sd = roster_values["exp_score"][1]
             consistency = roster_values["consistency"][0]
             consistency_sd = roster_values["consistency"][1]
-            for person in self.roster:
-                person[3] = round(random.gauss(exp_score,exp_score_sd),3)
-                person[4] = round(random.gauss(consistency,consistency_sd),2)
-                if self.campaign_flag:
-                    if random.uniform(0,100) > 20:
-                        person[2] = random.randint(-27, 9)
+            for person in initial_roster:
+                person.append(round(random.gauss(exp_score, exp_score_sd), 3))
+                person.append(round(random.gauss(consistency, consistency_sd), 2))
+                person += ['N/A' for i in range(len(Player.getHeader())-5)]
                 csvwriter.writerow(person)
             csvfile.close()
         shutil.copyfile(f"{filepath}/initial_roster.csv", f"{filepath}/current_roster.csv")
 
         #loads players correctly
-        self.header = ["First Name","Last Name","Age","Expected Time","Consistency","Best Placing","AVG Placing","Wins","Podiums","Best Single","Best AO5","Best AO5 Times"]
-        temp = [Player(self.load_user)]
-        for person in self.roster:
-            temp.append(Player(person))
-        self.roster = temp
+
+        self.load(self.roster_name)
         return self.roster_name
 
     def generateCustomRoster(self):
@@ -219,8 +225,13 @@ class Roster:
         return {"exp_score": exp_score, "consistency": consistency}
 
     def improve(self, player):
-        player[3] = round(player[3] * random.gauss(0.99, 0.01),3)
-        player[4] = round(player[4] * random.gauss(0.98, 0.01),2)
+        if isinstance(player, list):
+            player[3] = round(player[3] * random.gauss(0.99, 0.01),3)
+            player[4] = round(player[4] * random.gauss(0.98, 0.01),2)
+        else:
+            if isinstance(player.expected_score, float):
+                player.expected_score = round(player.expected_score * random.gauss(0.99, 0.01), 3)
+                player.consistency = round(player.consistency * random.gauss(0.98, 0.01), 2)
 
     @staticmethod
     def randomTournamentName(invite=False):
@@ -278,15 +289,16 @@ class Roster:
             player.best_single = score
         if placement:
             player.final_rank = placement
-
             if type(player.best_placing) is int:
+                player.num_events += 1
                 if placement < player.best_placing:
                     player.best_placing = placement
-                player.avg_placing = round((player.avg_placing * (self.event_num -1)   + placement) / self.event_num, 2)
+                player.avg_placing = round((player.avg_placing * (player.num_events -1) + placement) / player.num_events, 2)
                 if placement < 4: player.podium_count += 1
             else:
                 player.best_placing = placement
                 player.avg_placing = placement
+                player.num_events = 1
                 if placement < 4: player.podium_count = 1
 
     def checkPersonalEventRecords(self, player):
@@ -384,18 +396,6 @@ class Roster:
             self.all_time_records['Best Single']['name'] = f'{player.fname} {player.lname}'
 
 
-    def temp_expected(self):
-        # dict = {'9':38, '8':40,'7':42,'6':43,'5':44,'4': 45,'3':45,'2':46,'1':47,'0':50}
-        self.header.insert(4,"Consistency")
-        for person in self.roster:
-            if person.fname == "Emerson":
-                person.expected_score = 0.0
-                person.consistency = 0.0
-            else:
-                temp = person.expected_score * random.uniform(0.06,0.15)
-                person.consistency = round(temp,2)
-
-
     def loadAllTimeRecords(self, records):
         if records[0] != "N/A":
             self.all_time_records['Best Single']['score'] = float(records[1])
@@ -403,3 +403,32 @@ class Roster:
             self.all_time_records['Best AO5']['ao5'] = float(records[4])
             self.all_time_records['Best AO5']['name'] = records[5]
             self.all_time_records['Best AO5']['raw_scores'] = records[6]
+
+    def generateFakeNames(self, num, new_season=False):
+        fake = Faker()
+        inital_roster = [fake.unique.name().split() for i in range(num)]
+        for i in inital_roster:
+            if len(i) > 2:
+                if any(word in i[0] for word in [".", "Miss"]):
+                    i.pop(0)
+                if len(i) > 2 and len(i[2]) < 4:
+                    i.pop(2)
+
+        for i in inital_roster:
+            if new_season: i.append(18)
+            else: i.append(random.randint(18,30))
+
+        return inital_roster
+
+    def addNewPlayersToRoster(self, num):
+        initial_roster = self.generateFakeNames(num, True)
+        exp_score = self.roster_values["exp_score"][0]
+        exp_score_sd = self.roster_values["exp_score"][1]
+        consistency = self.roster_values["consistency"][0]
+        consistency_sd = self.roster_values["consistency"][1]
+        for p in initial_roster:
+            p.append(round(random.gauss(exp_score, exp_score_sd), 3))
+            p.append(round(random.gauss(consistency, consistency_sd), 2))
+            new_player = Player(p + ['N/A' for _ in range(len(Player.getHeader()) - 5)])
+            self.roster.append(new_player)
+
