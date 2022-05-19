@@ -59,9 +59,9 @@ class Event:
         for player in self.qualify_rankings:
             player.qualify_rank = rank
             if rank > self.num_qualify:
-                self.roster_obj.checkRecords(player, self.event_records, player.qualify_rank)
+                self.roster_obj.records.checkRecords(player, self.event_records, player.qualify_rank)
             else:
-                self.roster_obj.checkRecords(player, self.event_records)
+                self.roster_obj.records.checkRecords(player, self.event_records)
                 player.winners_bracket = True
             rank += 1
 
@@ -387,21 +387,21 @@ class Event:
 
     def setWinner(self, match, winner, loser):
 
-        self.roster_obj.checkRecords(winner, self.event_records)
+        self.roster_obj.records.checkRecords(winner, self.event_records)
         if loser.winners_bracket:
-            self.roster_obj.checkRecords(loser, self.event_records)
+            self.roster_obj.records.checkRecords(loser, self.event_records)
             self.win_num -= 1
             self.los_num += 1
         else:
             ranking = self.win_num + self.los_num
-            self.roster_obj.checkRecords(loser, self.event_records, ranking)
+            self.roster_obj.records.checkRecords(loser, self.event_records, ranking)
             self.final_rankings.insert(0, loser)
             if loser is self.user:
                 print(f"\n\nYou've been eliminated from {self.name}!\nYou finished in {ordinal(ranking)} place.")
             self.los_num -= 1
             if (self.win_num + self.los_num) == 1:
                 self.final_rankings.insert(0, winner)
-                self.roster_obj.checkRecords(winner, self.event_records, 1)
+                self.roster_obj.records.checkRecords(winner, self.event_records, 1)
                 winner.win_count += 1
 
 

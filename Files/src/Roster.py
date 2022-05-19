@@ -5,7 +5,7 @@ import statistics
 import time
 
 from faker import Faker
-
+from Files.src.Records import Records
 from Files.src.Player import Player
 from datetime import datetime
 import random
@@ -17,11 +17,11 @@ class Roster:
     def __init__(self, campaign = False):
         self.roster = []
         self.header = []
-        self.all_time_records = {"Best Single": {}, "Best AO5": {}}
         self.roster_name = None
         self.roster_values = {}
         self.campaign_flag = campaign
         self.event_num = 0
+        self.records = Records()
         if self.campaign_flag:
             self.roster_folder = "Campaigns"
         else:
@@ -29,14 +29,13 @@ class Roster:
 
     def load(self, filename):
         self.roster_name = filename
+
         file = open(f'../Data/{self.roster_folder}/{filename}/Rosters/current_roster.csv')
         csvreader = csv.reader(file)
         exp_score = next(csvreader)
         self.roster_values["exp_score"] = [float(x) for x in exp_score[1:]]
         consistency = next(csvreader)
         self.roster_values["consistency"] = [float(x) for x in consistency[1:]]
-        records = next(csvreader)
-        self.loadAllTimeRecords(records)
         self.header = next(csvreader)
         for row in csvreader:
             person = Player(row)
@@ -48,6 +47,8 @@ class Roster:
             self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/Season_{self.season_num}")) / 2)
         else:
             self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/")) / 2)
+
+        self.records.load(self.roster_folder, filename)
 
 
 
@@ -70,9 +71,6 @@ class Roster:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["exp_score"]+self.roster_values["exp_score"])
             csvwriter.writerow(["consistency"] + self.roster_values["consistency"])
-            record_to_csv = ['Best Single', self.all_time_records['Best Single']['score'], self.all_time_records['Best Single']['name'],
-                             'Best AO5', self.all_time_records['Best AO5']['ao5'], self.all_time_records['Best AO5']['name'], self.all_time_records['Best AO5']['raw_scores']]
-            csvwriter.writerow(record_to_csv)
             csvwriter.writerow(Player.getHeader())
             for person in self.roster:
                 csvwriter.writerow(person.to_csv())
@@ -109,8 +107,10 @@ class Roster:
         return f"../Data/{self.roster_folder}/{self.roster_name}/Rosters/"
 
     def generateRoster(self, roster_size):
+        self.records = Records()
         self.roster = []
         filepath = self.inputsForNewRoster()
+        self.records.createFiles(self.roster_folder, self.roster_name)
         roster_values = {}
         initial_roster = self.generateFakeNames(roster_size)
         for _ in range(10000):
@@ -265,144 +265,8 @@ class Roster:
             event_roster.append(self.roster[0])
         return event_roster
 
-    def checkRecords(self, player, event_records, placement=None):
-        self.checkPersonalRecords(player, placement)
-        self.checkPersonalEventRecords(player)
-        if self.checkEventRecords(player, event_records):
-            self.checkAllTimeRecords(player)
-
-    def checkPersonalRecords(self, player, placement):
-        if player.recent_ao5 == 'DNF':
-            pass
-        elif player.best_ao5 == 'N/A' or type(player.best_ao5) is not float:
-            player.best_ao5 = player.recent_ao5
-            player.best_ao5_times = player.recent_raw_scores
-        elif player.recent_ao5 < player.best_ao5:
-            print(f"\nNew Best AO5 for {player.fname} {player.lname}! Improved [{player.best_ao5}] to [{player.recent_ao5}]")
-            player.best_ao5 = player.recent_ao5
-            player.best_ao5_times = player.recent_raw_scores
-        score = min(i for i in player.recent_raw_scores if isinstance(i, float))
-        if player.best_single == 'N/A' or type(player.best_single) is not float:
-            player.best_single = score
-        elif type(score) is float and score < player.best_single:
-            print(f"\nNew Best Single for {player.fname} {player.lname}! Improved [{player.best_single}] to [{score}]")
-            player.best_single = score
-        if placement:
-            player.final_rank = placement
-            if type(player.best_placing) is int:
-                player.num_events += 1
-                if placement < player.best_placing:
-                    player.best_placing = placement
-                player.avg_placing = round((player.avg_placing * (player.num_events -1) + placement) / player.num_events, 2)
-                if placement < 4: player.podium_count += 1
-            else:
-                player.best_placing = placement
-                player.avg_placing = placement
-                player.num_events = 1
-                if placement < 4: player.podium_count = 1
-
-    def checkPersonalEventRecords(self, player):
-        if player.recent_ao5 == 'DNF':
-            if not player.best_event_ao5:
-                player.best_event_ao5 = 'DNF'
-                player.best_event_ao5_times = player.recent_raw_scores
-        elif not player.best_event_ao5 or player.best_event_ao5 == 'DNF':
-            player.best_event_ao5 = player.recent_ao5
-            player.best_event_ao5_times = player.recent_raw_scores
-        elif player.recent_ao5 < player.best_event_ao5:
-            player.best_event_ao5 = player.recent_ao5
-            player.best_event_ao5_times = player.recent_raw_scores
-        score = min(i for i in player.recent_raw_scores if isinstance(i, float))
-        if not player.best_event_single or type(player.best_event_single) is not float:
-            player.best_event_single = score
-        elif type(score) is float and score < player.best_event_single:
-            player.best_event_single = score
-
-        for score in player.recent_raw_scores:
-            if type(score) is float:
-                new_total = player.avg_event_time * player.event_solves + score
-                player.event_solves += 1
-                player.avg_event_time = round(new_total / player.event_solves, 3)
-            else:
-                player.event_DNF_count += 1
 
 
-
-    def checkEventRecords(self, player, event_records):
-        gotUpdated = False
-        if player.recent_ao5 == 'DNF':
-            pass
-        elif not event_records['Best AO5']:
-            event_records['Best AO5']['ao5'] = player.recent_ao5
-            event_records['Best AO5']['raw_scores'] = player.recent_raw_scores
-            event_records['Best AO5']['name'] = f'{player.fname} {player.lname}'
-            gotUpdated = True
-        elif event_records['Best AO5']['ao5'] > player.recent_ao5:
-            print(
-                f"\nNew Event AO5 Record for {player.fname} {player.lname}! "
-                f"Improved [{event_records['Best AO5']['ao5']}] to [{player.recent_ao5}]")
-            event_records['Best AO5']['ao5'] = player.recent_ao5
-            event_records['Best AO5']['raw_scores'] = player.recent_raw_scores
-            event_records['Best AO5']['name'] = f'{player.fname} {player.lname}'
-            gotUpdated = True
-        score = min(i for i in player.recent_raw_scores if isinstance(i, float))
-        if not event_records['Best Single']:
-            event_records['Best Single']['score'] = score
-            event_records['Best Single']['name'] = f'{player.fname} {player.lname}'
-            gotUpdated = True
-        elif type(score) is float and score < event_records['Best Single']['score']:
-            print(
-                f"\nNew Event Best Single for {player.fname} {player.lname}! Improved [{event_records['Best Single']['score']}] to [{score}]")
-            event_records['Best Single']['score'] = score
-            event_records['Best Single']['name'] = f'{player.fname} {player.lname}'
-            gotUpdated = True
-        return gotUpdated
-
-    def checkAllTimeRecords(self, player):
-        if player.recent_ao5 == 'DNF':
-            pass
-        elif not self.all_time_records['Best AO5']:
-            self.all_time_records['Best AO5']['ao5'] = player.recent_ao5
-            self.all_time_records['Best AO5']['raw_scores'] = player.recent_raw_scores
-            self.all_time_records['Best AO5']['name'] = f'{player.fname} {player.lname}'
-        elif player.recent_ao5 < self.all_time_records['Best AO5']['ao5']:
-            line = ''
-            for _ in range(25): line += '='
-            print(line)
-            print(
-                f"\nNew World AO5 Record by {player.fname} {player.lname} with an average of [{player.recent_ao5}]! "
-                f"Beat {self.all_time_records['Best AO5']['name']}'s average of [{self.all_time_records['Best AO5']['ao5']}]")
-            print(line)
-            #TODO remove
-            #time.sleep(5)
-            self.all_time_records['Best AO5']['ao5'] = player.recent_ao5
-            self.all_time_records['Best AO5']['raw_scores'] = player.recent_raw_scores
-            self.all_time_records['Best AO5']['name'] = f'{player.fname} {player.lname}'
-        score = min(i for i in player.recent_raw_scores if isinstance(i, float))
-        if not self.all_time_records['Best Single']:
-            self.all_time_records['Best Single']['score'] = score
-            self.all_time_records['Best Single']['name'] = f'{player.fname} {player.lname}'
-        elif type(score) is float and score < self.all_time_records['Best Single']['score']:
-            line = ''
-            for _ in range(25):line += '='
-            print("\n"+line)
-            print(
-                f"\nNew World Record Single by {player.fname} {player.lname} with a time of [{score}]! \n"
-                f"Beat {self.all_time_records['Best Single']['name']}'s time of [{self.all_time_records['Best Single']['score']}]")
-            print("\n"+line)
-            # TODO remove
-            # time.sleep(5)
-            self.all_time_records['Best Single']['score'] = score
-            self.all_time_records['Best Single']['name'] = f'{player.fname} {player.lname}'
-
-
-    def loadAllTimeRecords(self, records):
-        if records[0] != "N/A":
-            self.all_time_records['Best Single']['score'] = float(records[1])
-            self.all_time_records['Best Single']['name'] = records[2]
-            self.all_time_records['Best AO5']['ao5'] = float(records[4])
-            self.all_time_records['Best AO5']['name'] = records[5]
-            self.all_time_records['Best AO5']['raw_scores'] = records[6]
 
     def generateFakeNames(self, num, new_season=False):
         fake = Faker()
