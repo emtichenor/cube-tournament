@@ -53,7 +53,7 @@ class Event:
 
         for _ in range(4):
             print(".")
-            time.sleep(1)
+            #TODO uncomment time.sleep(1)
         self.final_rankings = self.qualify_rankings[self.num_qualify:]
         rank = 1
         for player in self.qualify_rankings:
@@ -118,7 +118,7 @@ class Event:
         self.grandFinals()
         print(f'\n\n{self.final_rankings[0].format_seed()} won the {self.name}!')
         for _ in range(4):
-            time.sleep(0.5)
+            #TODO uncomment time.sleep(0.5)
             print('.')
         print(f'The Best Single from this event was [{self.event_records["Best Single"]["score"]}] set by {self.event_records["Best Single"]["name"]}')
         print(f'The Best Average from this event was [{self.event_records["Best AO5"]["ao5"]}] set by {self.event_records["Best AO5"]["name"]}')
@@ -157,7 +157,7 @@ class Event:
             if not self.campaign_flag:
                 filename = f'../Data/Practice_Tournaments/{self.roster_obj.roster_name}/Tournaments/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
             else:
-                filename = f'../Data/Campaigns/{self.roster_obj.roster_name}/Tournaments/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
+                filename = f'../Data/Campaigns/{self.roster_obj.roster_name}/Tournaments/Season_{self.roster_obj.season_num}/{self.roster_obj.event_num}_{name}_qualification_standings.csv'
             with open(filename, 'w', newline='') as csvfile:
                 csvwriter = csv.writer(csvfile)
                 csvwriter.writerow([self.name])
@@ -175,7 +175,7 @@ class Event:
         if not self.campaign_flag:
             filename = f'../Data/Practice_Tournaments/{self.roster_obj.roster_name}/Tournaments/{self.roster_obj.event_num}_{name}_final_standings.csv'
         else:
-            filename = f'../Data/Campaigns/{self.roster_obj.roster_name}/Tournaments/{self.roster_obj.event_num}_{name}_final_standings.csv'
+            filename = f'../Data/Campaigns/{self.roster_obj.roster_name}/Tournaments/Season_{self.roster_obj.season_num}/{self.roster_obj.event_num}_{name}_final_standings.csv'
         with open(filename, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             event_records = ['Best Single', self.event_records['Best Single']['score'], self.event_records['Best Single']['name'],

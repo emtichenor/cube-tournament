@@ -48,12 +48,27 @@ class PracticeTournament:
                 print("\n\nInvalid Input!\n")
 
     def createRoster(self):
-        self.selected_name = self.roster.generateRoster()
+        while True:
+            roster_size = input(
+                f"How many people do you want to generate for this roster? (400 recommended) ")
+            try:
+                roster_size = int(roster_size)
+                if not 4 < roster_size < 10000:
+                    print("Roster size must be between 4 and 10000.")
+                    continue
+                else:
+                    break
+            except ValueError:
+                print(f"Incorrect Value! Please enter a number between 4 and 10000")
+                continue
+        self.selected_name = self.roster.generateRoster(roster_size-1)
         self.menu()
 
 
     def inputNumPlayers(self):
         roster_len = len(self.roster.roster)
+        del self.options['num_entrants']
+        del self.options['num_qualify']
         while True:
             if 'num_entrants' not in self.options: self.options['num_entrants'] = input(
                 f"How many people are entering this tournament (Max {roster_len})? ")

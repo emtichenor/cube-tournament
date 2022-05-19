@@ -57,8 +57,19 @@ def menu(test_mode=False):
 
 def garbage():
     fake = Faker()
-    for _ in range(50):
-        print(fake.name())
+    thelist = [fake.unique.name().split()for i in range(10000)]
+    x = []
+    for i in thelist:
+
+        if len(i) > 2:
+
+            if any(word in i[0] for word in [".", "Miss"]):
+                i.pop(0)
+            if len(i) > 2 and len(i[2]) < 4:
+                i.pop(2)
+    for x in thelist:
+        assert len(x) == 2
+    print(thelist)
     quit()
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")

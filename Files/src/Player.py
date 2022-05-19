@@ -12,12 +12,13 @@ class Player:
         self.consistency = self.to_float(args[4])
         self.best_placing = self.to_int(args[5])
         self.avg_placing = self.to_float(args[6])
-        self.championships = 0 #self.to_int(args[6]) #TODO fix this
-        self.win_count = self.to_int(args[7])
-        self.podium_count = self.to_int(args[8])
-        self.best_single = self.to_float(args[9])
-        self.best_ao5 = self.to_float(args[10])
-        self.best_ao5_times = args[11]
+        self.num_events = self.to_int(args[7])
+        self.championships = self.to_int(args[8])
+        self.win_count = self.to_int(args[9])
+        self.podium_count = self.to_int(args[10])
+        self.best_single = self.to_float(args[11])
+        self.best_ao5 = self.to_float(args[12])
+        self.best_ao5_times = args[13]
 
         # For Event
         self.recent_ao5 = None
@@ -36,8 +37,9 @@ class Player:
         self.event_solves = 0
         self.event_DNF_count = 0
 
-
-
+    @staticmethod
+    def getHeader():
+        return ["First Name","Last Name","Age","Expected Time","Consistency","Best Placing","AVG Placing","Num Events", "Championships","Wins","Podiums","Best Single","Best AO5","Best AO5 Times"]
 
 
 
@@ -55,7 +57,7 @@ class Player:
             return arg
     def to_csv(self):
         return [self.fname, self.lname, self.age, self.expected_score, self.consistency,
-                self.best_placing, self.avg_placing, self.win_count, self.podium_count, self.best_single,
+                self.best_placing, self.avg_placing, self.num_events, self.championships, self.win_count, self.podium_count, self.best_single,
                 self.best_ao5, self.best_ao5_times]
 
 
