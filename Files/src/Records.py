@@ -50,10 +50,10 @@ class Records:
         now = datetime.now()
         timestamp = now.strftime("%m%d%Y_%H%M")
         if self.campaign_flag:
-            backup_filepath = f'../Data/{self.roster_folder}/{filename}/Rosters/Backups/{self.season_num}_{self.event_num}_old_roster_{timestamp}.csv'
+            backup_filepath = f'../Data/{folder_type}/{roster_name}/Rosters/Backups/{self.season_num}_{self.event_num}_old_records_{timestamp}.csv'
         else:
-            backup_filepath = f'../Data/{self.roster_folder}/{filename}/Rosters/Backups/{self.event_num}_old_roster_{timestamp}.csv'
-        current_filepath = f'../Data/{self.roster_folder}/{filename}/Rosters/current_roster.csv'
+            backup_filepath = f'../Data/{folder_type}/{roster_name}/Rosters/Backups/{self.event_num}_old_roster_{timestamp}.csv'
+        current_filepath = f'../Data/{folder_type}/{roster_name}/Rosters/current_roster.csv'
         if path.exists(current_filepath):
             src = path.realpath(current_filepath)
             os.rename(current_filepath, backup_filepath)
