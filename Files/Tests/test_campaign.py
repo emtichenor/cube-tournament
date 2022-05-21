@@ -11,7 +11,7 @@ def test_startup(patch_season, patch_input):
     campaign.startup()
     path = f'../Data/Campaigns/{cmp_name}/'
     dirs = os.listdir(path)
-    for dir in ["Rosters", "Schedules", "Tournaments"]:
+    for dir in ["Unused_Old_Rosters", "Schedules", "Tournaments"]:
         assert dir in dirs
         os.rmdir(path+dir)
     os.rmdir(path)

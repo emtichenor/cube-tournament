@@ -22,6 +22,12 @@ class Event:
         for player in event_roster: player.setToZero()
         self.user = None
         self.roster_obj.event_num += 1
+        self.roster_obj.records.event_name = name
+        if self.campaign_flag:
+            self.roster_obj.records.event_num = f"S{self.roster_obj.season_num}E{self.roster_obj.event_num}"
+        else:
+            self.roster_obj.records.event_num = self.roster_obj.event_num
+
 
     def qualify(self):
         self.total_entrants = len(self.event_roster)
@@ -53,15 +59,15 @@ class Event:
 
         for _ in range(4):
             print(".")
-            #TODO uncomment time.sleep(1)
+            time.sleep(0.5)
         self.final_rankings = self.qualify_rankings[self.num_qualify:]
         rank = 1
         for player in self.qualify_rankings:
             player.qualify_rank = rank
             if rank > self.num_qualify:
-                self.roster_obj.checkRecords(player, self.event_records, player.qualify_rank)
+                self.roster_obj.records.checkRecords(player, self.event_records, player.qualify_rank)
             else:
-                self.roster_obj.checkRecords(player, self.event_records)
+                self.roster_obj.records.checkRecords(player, self.event_records)
                 player.winners_bracket = True
             rank += 1
 
@@ -118,7 +124,7 @@ class Event:
         self.grandFinals()
         print(f'\n\n{self.final_rankings[0].format_seed()} won the {self.name}!')
         for _ in range(4):
-            #TODO uncomment time.sleep(0.5)
+            time.sleep(0.5)
             print('.')
         print(f'The Best Single from this event was [{self.event_records["Best Single"]["score"]}] set by {self.event_records["Best Single"]["name"]}')
         print(f'The Best Average from this event was [{self.event_records["Best AO5"]["ao5"]}] set by {self.event_records["Best AO5"]["name"]}')
@@ -382,26 +388,25 @@ class Event:
         self.setWinner(match, winner, loser)
         if self.active_matches_count > 8: match_sleep = 20 / self.active_matches_count
         else: match_sleep = 2.5
-        #TODO remove
-        #time.sleep(match_sleep)
+        time.sleep(match_sleep)
 
     def setWinner(self, match, winner, loser):
 
-        self.roster_obj.checkRecords(winner, self.event_records)
+        self.roster_obj.records.checkRecords(winner, self.event_records)
         if loser.winners_bracket:
-            self.roster_obj.checkRecords(loser, self.event_records)
+            self.roster_obj.records.checkRecords(loser, self.event_records)
             self.win_num -= 1
             self.los_num += 1
         else:
             ranking = self.win_num + self.los_num
-            self.roster_obj.checkRecords(loser, self.event_records, ranking)
+            self.roster_obj.records.checkRecords(loser, self.event_records, ranking)
             self.final_rankings.insert(0, loser)
             if loser is self.user:
                 print(f"\n\nYou've been eliminated from {self.name}!\nYou finished in {ordinal(ranking)} place.")
             self.los_num -= 1
             if (self.win_num + self.los_num) == 1:
                 self.final_rankings.insert(0, winner)
-                self.roster_obj.checkRecords(winner, self.event_records, 1)
+                self.roster_obj.records.checkRecords(winner, self.event_records, 1)
                 winner.win_count += 1
 
 

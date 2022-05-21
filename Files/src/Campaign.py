@@ -46,7 +46,7 @@ class Campaign:
             self.season_num = len(os.listdir(schedule_path))
             print(f"\nCampgaign: {self.campaign_name}")
             print(f"Season {self.season_num}")
-            print(f"\nEvent {self.next_tournament[0]}\n{self.next_tournament[1]}")
+            print(f"Event {self.next_tournament[0]}\n{self.next_tournament[1]}")
             c = input("\nPlease select an option\n1: Play Next Event \n2: Schedule\n3: Standings\n4: Records\n5: Quit\n")
             if c == '1':
                 print("Starting new event!\n")
@@ -82,6 +82,7 @@ class Campaign:
             self.tournaments.append([(i+1),name,quali,"N/A","N/A","N/A"])
         schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
         self.season_num = self.season_num + 1
+        self.roster.event_num = 0
         self.tournaments.append([11, f"Season {self.season_num} Championship",16,"N/A","N/A","N/A"])
         schedule_path = schedule_path + f"Season_{self.season_num}.csv"
         with open(schedule_path , 'w', newline='') as csvfile:
@@ -114,10 +115,10 @@ class Campaign:
             player.age += 1
             self.roster.improve(player)
         self.roster.addNewPlayersToRoster(40)
-        self.roster.save(self.campaign_name)
         self.generateSeason()
-        self.roster = Roster(True)
-        self.roster.load(self.campaign_name)
+        self.roster.season_num += 1
+        self.roster.save(self.campaign_name)
+
 
 
     def load(self):
@@ -164,10 +165,6 @@ class Campaign:
             event_roster = self.sortRoster(100)
         else:
             event_roster = self.season_roster
-        #TODO remove
-        self.options['TEST_FLAG'] = True
-        self.options['TEST_USER_QUALI'] = [54.1,55.1,56.1,57.1,57.1]
-        self.options['NO_INPUT_FLAG'] = True
         self.event = Event(self.next_tournament[1], event_roster, self.roster, self.options)
         self.event.qualify()
         self.event.tournament()
@@ -175,8 +172,6 @@ class Campaign:
 
     def runChampionship(self):
         event_roster = self.sortRoster(16)
-        for p in event_roster:
-            p.winners_bracket = True
         self.event = Event(self.next_tournament[1], event_roster, self.roster, self.options)
         for p in event_roster:
             p.qualify_rank = event_roster.index(p) + 1
@@ -190,10 +185,6 @@ class Campaign:
         final_rankings = self.event.saveTournament()
         winner = final_rankings[0]
         print(f"\n{winner.fname} {winner.lname} won the {self.next_tournament[1]}!\n")
-
-        for p in self.roster.roster:
-            if not isinstance(p.championships, int):
-                p.championships = 0
         winner.championships += 1
 
         self.next_tournament[3] = f"{final_rankings[0].fname} {final_rankings[0].lname}"
@@ -225,14 +216,9 @@ class Campaign:
             for player in final_rankings:
                 for s_player in self.season_rankings:
                     if player.fname == s_player[1] and player.lname == s_player[2]:
-                        #TODO remove
-                        try:
-                            s_player.append(placing)
-                            s_player[0] += self.calcPoints(placing)
-                            placing += 1
-                        except AttributeError:
-                            print(s_player)
-                            quit()
+                        s_player.append(placing)
+                        s_player[0] += self.calcPoints(placing)
+                        placing += 1
                         break
             self.season_rankings.sort(reverse=True, key=lambda x: (x[0], -min(x[3:])))
             schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
