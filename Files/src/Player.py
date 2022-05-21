@@ -69,3 +69,6 @@ class Player:
     def setToZero(self):
         if not isinstance(self.podium_count, int): self.podium_count = 0
         if not isinstance(self.win_count, int): self.win_count = 0
+        if not isinstance(self.championships, int): self.championships = 0
+        if not isinstance(self.wr_count, int): self.wr_count = 0
+        self.winners_bracket = True

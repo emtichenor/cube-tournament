@@ -21,7 +21,8 @@ class Roster:
         self.roster_values = {}
         self.campaign_flag = campaign
         self.event_num = 0
-        self.records = Records()
+        self.records = None
+        self.season_num = None
         if self.campaign_flag:
             self.roster_folder = "Campaigns"
         else:
@@ -43,12 +44,13 @@ class Roster:
         file.close()
 
         if self.campaign_flag:
-            self.season_num = self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/")))
+            self.season_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/")))
             self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/Season_{self.season_num}")) / 2)
         else:
             self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/")) / 2)
 
-        self.records.load(self.roster_folder, filename)
+        self.loadRecords(filename)
+
 
 
 
@@ -78,7 +80,7 @@ class Roster:
                 csvwriter.writerow(person.to_csv())
             csvfile.close()
 
-        self.records.save(self.roster_folder, filename, backup_record_filename)
+        self.records.save(self.roster_folder, filename, [self.season_num, self.event_num, timestamp])
 
     def inputsForNewRoster(self):
         for _ in range(100):
@@ -135,7 +137,6 @@ class Roster:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["exp_score"] + roster_values["exp_score"])
             csvwriter.writerow(["consistency"] + roster_values["consistency"])
-            csvwriter.writerow(["N/A"])
             csvwriter.writerow(Player.getHeader())
             self.load_user += ['N/A' for i in range(len(Player.getHeader())-3)]
             csvwriter.writerow(self.load_user)
@@ -237,9 +238,23 @@ class Roster:
                 player.expected_score = round(player.expected_score * random.gauss(0.99, 0.01), 3)
                 player.consistency = round(player.consistency * random.gauss(0.98, 0.01), 2)
 
+    def loadRecords(self, filename):
+        self.records = Records()
+        self.records.load(self.roster_folder, filename)
+        for r_player in self.records.allTimeAO5Records:
+            for player in self.roster:
+                if player.fname == r_player["First Name"] and player.lname == r_player["Last Name"]:
+                    r_player["Player"] = player
+                    break
+        for r_player in self.records.allTimeSingleRecords:
+            for player in self.roster:
+                if player.fname == r_player["First Name"] and player.lname == r_player["Last Name"]:
+                    r_player["Player"] = player
+                    break
+
     @staticmethod
     def randomTournamentName(invite=False):
-        file = open('../Data/Practice_Tournaments/Event_List/world_cities.csv')
+        file = open('../Data/Resources/Event_List/world_cities.csv')
         csvreader = csv.reader(file)
         cities = []
         pop = []
@@ -270,11 +285,10 @@ class Roster:
         return event_roster
 
 
-
-
     def generateFakeNames(self, num, new_season=False):
         fake = Faker()
         inital_roster = [fake.unique.name().split() for i in range(num)]
+        filtered_roster = []
         for i in inital_roster:
             if len(i) > 2:
                 if any(word in i[0] for word in [".", "Miss"]):
@@ -283,10 +297,18 @@ class Roster:
                     i.pop(2)
 
         for i in inital_roster:
-            if new_season: i.append(18)
-            else: i.append(random.randint(18,30))
-
-        return inital_roster
+            if not new_season: i.append(random.randint(18,30))
+            else:
+                discard = False
+                i.append(18)
+                for player in self.roster:
+                    if player.fname == i[0] and player.lname == i[1]:
+                        discard = True
+                        break
+                if not discard:
+                    filtered_roster.append(i)
+        if filtered_roster: return filtered_roster
+        else: return inital_roster
 
     def addNewPlayersToRoster(self, num):
         initial_roster = self.generateFakeNames(num, True)

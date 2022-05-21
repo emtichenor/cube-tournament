@@ -67,14 +67,14 @@ class PracticeTournament:
 
     def inputNumPlayers(self):
         roster_len = len(self.roster.roster)
-        del self.options['num_entrants']
-        del self.options['num_qualify']
+        if 'num_entrants' in self.options: del self.options['num_entrants']
+        if 'num_qualify' in self.options: del self.options['num_qualify']
         while True:
             if 'num_entrants' not in self.options: self.options['num_entrants'] = input(
                 f"How many people are entering this tournament (Max {roster_len})? ")
             try:
                 self.options['num_entrants'] = int(self.options['num_entrants'])
-                if not 4 < self.options['num_entrants'] < roster_len:
+                if not 4 <= self.options['num_entrants'] <= roster_len:
                     raise ValueError
             except ValueError:
                 print(f"Incorrect Value! Please enter a number between 4 and {roster_len}")
@@ -85,7 +85,7 @@ class PracticeTournament:
             try:
 
                 self.options['num_qualify'] = int(self.options['num_qualify'])
-                if not 1 < self.options['num_qualify'] < self.options['num_entrants']:
+                if not 1 < self.options['num_qualify'] <= self.options['num_entrants']:
                     raise ValueError
                 else:
                     return

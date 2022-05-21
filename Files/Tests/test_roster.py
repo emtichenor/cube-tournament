@@ -24,7 +24,7 @@ def test_generateRoster(patch_input):
     con_sd = 1
     patch_input.side_effect = ["custom", "35, 3.5", "3,1"]
     roster = Roster()
-    path = '../Data/Rosters/test_roster'
+    path = '../Data/Unused_Old_Rosters/test_roster'
     os.mkdir(path)
     roster.generateRoster(f"{path}/test_startup_roster.csv")
     assert os.path.isfile(f"{path}/test_startup_roster.csv")
@@ -50,7 +50,7 @@ def test_generateRoster(patch_input):
 
     patch_input.side_effect = ["solve", "medium", 29.032, 27.663, 22.395, 25.762, 25.198, 24.029, 27.314, 33.715, 24.279, 31.629, 34.018,"stop"]
     roster = Roster()
-    path = '../Data/Rosters/test_roster'
+    path = '../Data/Unused_Old_Rosters/test_roster'
     os.mkdir(path)
     roster.generateRoster(f"{path}/test_startup_roster.csv")
     assert os.path.isfile(f"{path}/test_startup_roster.csv")
@@ -76,7 +76,7 @@ def test_temp(patch_input):
     patch_input.side_effect = ["solve", "medium", 29.032, 27.663, 22.395, 25.762, 25.198, 24.029, 27.314, 33.715,
                                24.279, 31.629, 34.018, "stop"]
     roster = Roster()
-    path = '../Data/Rosters/test_roster'
+    path = '../Data/Unused_Old_Rosters/test_roster'
     os.remove(f"{path}/test_startup_roster.csv")
     os.rmdir(path)
     os.mkdir(path)

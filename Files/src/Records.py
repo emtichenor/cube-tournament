@@ -1,77 +1,92 @@
 import csv
 import os
 from datetime import datetime
+import time
+from os import path
 
-
+ordinal = lambda rank: "%d%s" % (rank, "tsnrhtdd"[(rank // 10 % 10 != 1) * (rank % 10 < 4) * rank % 10::4]) # Black magic
 class Records:
     def __init__(self):
         self.allTimeAO5Records = []
         self.allTimeSingleRecords = []
         self.allTimeAO5Threshold = None
         self.allTimeSingleThreshhold = None
+        self.event_name = None
+        self.event_num = None
 
     def createFiles(self, folder_type, roster_name):
         filepath = f"../Data/{folder_type}/{roster_name}/Records"
         os.mkdir(filepath)
+        os.mkdir(filepath+"/Backups")
         with open(f"{filepath}/AO5_Records.csv", 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writeheader(self.getHeader("ao5"))
+            csvwriter.writerow(self.getHeader("ao5"))
             csvfile.close()
         with open(f"{filepath}/Single_Records.csv", 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writeheader(self.getHeader("single"))
+            csvwriter.writerow(self.getHeader("single"))
             csvfile.close()
 
     def load(self, folder_type, roster_name):
         filepath = f"../Data/{folder_type}/{roster_name}/Records"
         file = open(filepath+'/AO5_Records.csv')
-        csvreader = csv.reader(file)
-        next(csvreader)
-        for row in csvreader:
-            row.pop(0)
-            row[2] = int(row[2])
-            self.allTimeAO5Records.append(row)
+        csvreader = csv.DictReader(file)
+        for record in csvreader:
+            record["AO5"] = float(record["AO5"])
+            self.allTimeAO5Records.append(record)
         if len(self.allTimeAO5Records) == 100:
-            self.allTimeAO5Threshold = self.allTimeAO5Records[99][2]
+            self.allTimeAO5Threshold = self.allTimeAO5Records[-1]["AO5"]
         file.close()
 
         file = open(filepath+'/Single_Records.csv')
-        csvreader = csv.reader(file)
-        next(csvreader)
-        for row in csvreader:
-            row.pop(0)
-            row[2] = int(row[2])
-            self.allTimeSingleRecords.append(row)
+        csvreader = csv.DictReader(file)
+        for record in csvreader:
+            record["Time"] = float(record["Time"])
+            self.allTimeSingleRecords.append(record)
         if len(self.allTimeSingleRecords) == 100:
-            self.allTimeSingleThreshhold = self.allTimeSingleRecords[99][2]
+            self.allTimeSingleThreshhold = self.allTimeSingleRecords[-1]["Time"]
         file.close()
 
-    def save(self, folder_type, roster_name):
-        now = datetime.now()
-        timestamp = now.strftime("%m%d%Y_%H%M")
-        if self.campaign_flag:
-            backup_filepath = f'../Data/{folder_type}/{roster_name}/Rosters/Backups/{self.season_num}_{self.event_num}_old_records_{timestamp}.csv'
-        else:
-            backup_filepath = f'../Data/{folder_type}/{roster_name}/Rosters/Backups/{self.event_num}_old_roster_{timestamp}.csv'
-        current_filepath = f'../Data/{folder_type}/{roster_name}/Rosters/current_roster.csv'
-        if path.exists(current_filepath):
-            src = path.realpath(current_filepath)
-            os.rename(current_filepath, backup_filepath)
+    def save(self, folder_type, roster_name, args):
 
-        with open(current_filepath, 'w', newline='') as csvfile:
-            csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(["exp_score"] + self.roster_values["exp_score"])
-            csvwriter.writerow(["consistency"] + self.roster_values["consistency"])
-            csvwriter.writerow(Player.getHeader())
-            for person in self.roster:
-                csvwriter.writerow(person.to_csv())
+
+        current_ao5_filepath = f'../Data/{folder_type}/{roster_name}/Records/AO5_Records.csv'
+        current_single_filepath = f'../Data/{folder_type}/{roster_name}/Records/Single_Records.csv'
+        if args[0]:
+            backup_ao5_filepath = f'../Data/{folder_type}/{roster_name}/Records/Backups/{args[0]}_{args[1]}_AO5_Records_{args[2]}.csv'
+            backup_single_filepath = f'../Data/{folder_type}/{roster_name}/Records/Backups/{args[0]}_{args[1]}_Single_Records_{args[2]}.csv'
+        else:
+            backup_ao5_filepath = f'../Data/{folder_type}/{roster_name}/Records/Backups/{args[1]}_AO5_Records_{args[2]}.csv'
+            backup_single_filepath = f'../Data/{folder_type}/{roster_name}/Records/Backups/{args[1]}_Single_Records_{args[2]}.csv'
+
+
+        if path.exists(current_ao5_filepath):
+            src = path.realpath(current_ao5_filepath)
+            os.rename(current_ao5_filepath, backup_ao5_filepath)
+        with open(current_ao5_filepath, 'w', newline='') as csvfile:
+            csvwriter = csv.DictWriter(csvfile, fieldnames=self.getHeader("ao5"), extrasaction='ignore')
+            csvwriter.writeheader()
+            for record in self.allTimeAO5Records:
+                record["Rank"] = ordinal(self.allTimeAO5Records.index(record)+1)
+                csvwriter.writerow(record)
+            csvfile.close()
+
+        if path.exists(current_single_filepath):
+            src = path.realpath(current_single_filepath)
+            os.rename(current_single_filepath, backup_single_filepath)
+        with open(current_single_filepath, 'w', newline='') as csvfile:
+            csvwriter = csv.DictWriter(csvfile, fieldnames=self.getHeader("single"), extrasaction='ignore')
+            csvwriter.writeheader()
+            for record in self.allTimeSingleRecords:
+                record["Rank"] = ordinal(self.allTimeSingleRecords.index(record) + 1)
+                csvwriter.writerow(record)
             csvfile.close()
 
     def checkRecords(self, player, event_records, placement=None):
         self.checkPersonalRecords(player, placement)
         self.checkPersonalEventRecords(player)
-        if self.checkEventRecords(player, event_records):
-            self.checkAllTimeRecords(player)
+        self.checkEventRecords(player, event_records)
+        self.checkAllTimeRecords(player)
 
 
     def checkPersonalRecords(self, player, placement):
@@ -132,14 +147,12 @@ class Records:
                 player.event_DNF_count += 1
 
     def checkEventRecords(self, player, event_records):
-        gotUpdated = False
         if player.recent_ao5 == 'DNF':
             pass
         elif not event_records['Best AO5']:
             event_records['Best AO5']['ao5'] = player.recent_ao5
             event_records['Best AO5']['raw_scores'] = player.recent_raw_scores
             event_records['Best AO5']['name'] = f'{player.fname} {player.lname}'
-            gotUpdated = True
         elif event_records['Best AO5']['ao5'] > player.recent_ao5:
             print(
                 f"\nNew Event AO5 Record for {player.fname} {player.lname}! "
@@ -147,62 +160,95 @@ class Records:
             event_records['Best AO5']['ao5'] = player.recent_ao5
             event_records['Best AO5']['raw_scores'] = player.recent_raw_scores
             event_records['Best AO5']['name'] = f'{player.fname} {player.lname}'
-            gotUpdated = True
         score = min(i for i in player.recent_raw_scores if isinstance(i, float))
         if not event_records['Best Single']:
             event_records['Best Single']['score'] = score
             event_records['Best Single']['name'] = f'{player.fname} {player.lname}'
-            gotUpdated = True
         elif type(score) is float and score < event_records['Best Single']['score']:
             print(
                 f"\nNew Event Best Single for {player.fname} {player.lname}! Improved [{event_records['Best Single']['score']}] to [{score}]")
             event_records['Best Single']['score'] = score
             event_records['Best Single']['name'] = f'{player.fname} {player.lname}'
-            gotUpdated = True
-        return gotUpdated
+
+
 
     def checkAllTimeRecords(self, player):
         if player.recent_ao5 == 'DNF':
             pass
-        elif not self.all_time_records['Best AO5']:
-            self.all_time_records['Best AO5']['ao5'] = player.recent_ao5
-            self.all_time_records['Best AO5']['raw_scores'] = player.recent_raw_scores
-            self.all_time_records['Best AO5']['name'] = f'{player.fname} {player.lname}'
-        elif player.recent_ao5 < self.all_time_records['Best AO5']['ao5']:
-            line = ''
+        elif not self.allTimeAO5Threshold:
+            self.insertRecord(self.allTimeAO5Records, player)
+            if len(self.allTimeAO5Records) == 100:
+                self.allTimeAO5Threshold = self.allTimeAO5Records[-1]["AO5"]
+        elif player.recent_ao5 < self.allTimeAO5Threshold:
+            rank = self.insertRecord(self.allTimeAO5Records, player)
+            no_more_wr_player = self.allTimeAO5Records.pop()
+            no_more_wr_player["Player"].wr_count -= 1
+            self.allTimeAO5Threshold = self.allTimeAO5Records[-1]["AO5"]
+            self.printRecord("AO5", player.recent_ao5, player, rank)
+
+        for score in player.recent_raw_scores:
+            if not isinstance(score, float):
+                continue
+            elif not self.allTimeSingleThreshhold:
+                self.insertRecord(self.allTimeSingleRecords, player, score)
+                if len(self.allTimeSingleRecords) == 100:
+                    self.allTimeSingleThreshhold = self.allTimeSingleRecords[-1]["Time"]
+            elif score < self.allTimeSingleThreshhold:
+                rank = self.insertRecord(self.allTimeSingleRecords, player, score)
+                no_more_wr_player = self.allTimeSingleRecords.pop()
+                no_more_wr_player["Player"].wr_count -= 1
+                self.allTimeSingleThreshhold = self.allTimeSingleRecords[-1]["Time"]
+                self.printRecord("Time", score, player, rank)
+
+
+    def insertRecord(self, record_list, player, score = None):
+        if not score:
+            player_list = [" ", player.fname, player.lname, player.recent_ao5, player.recent_raw_scores, self.event_num,
+                           self.event_name]
+            player_dict = dict(zip(self.getHeader("ao5"), player_list))
+            player_dict["Player"] = player
+            player.wr_count += 1
+            for record in record_list:
+                if record["AO5"] > player.recent_ao5:
+                    rank = record_list.index(record)
+                    record_list.insert(rank, player_dict)
+                    return rank + 1
+            record_list.append(player_dict)
+        else:
+            player_list = [" ", player.fname, player.lname, score, self.event_num, self.event_name]
+            player_dict = dict(zip(self.getHeader("single"), player_list))
+            player_dict["Player"] = player
+            player.wr_count += 1
+            for record in record_list:
+                if record["Time"] > score:
+                    rank = record_list.index(record)
+                    record_list.insert(rank, player_dict)
+                    return rank + 1
+            record_list.append(player_dict)
+
+    def printRecord(self, record_type, score, player, rank):
+        wording = "a time"
+        if record_type == "AO5": wording = "an average"
+        if rank != 1:
+            rank_formatted = f"{ordinal(rank)} best"
+        else:
+            rank_formatted = ""
+        print_record = f"\nNew {rank_formatted} World {record_type} Record by {player.fname} {player.lname} with {wording} of [{score}]! "
+        if rank <= 5:
+            line = ""
             for _ in range(25): line += '='
             print(line)
-            print(
-                f"\nNew World AO5 Record by {player.fname} {player.lname} with an average of [{player.recent_ao5}]! "
-                f"Beat {self.all_time_records['Best AO5']['name']}'s average of [{self.all_time_records['Best AO5']['ao5']}]")
+            print(print_record)
             print(line)
-            # TODO remove
-            # time.sleep(5)
-            self.all_time_records['Best AO5']['ao5'] = player.recent_ao5
-            self.all_time_records['Best AO5']['raw_scores'] = player.recent_raw_scores
-            self.all_time_records['Best AO5']['name'] = f'{player.fname} {player.lname}'
-        score = min(i for i in player.recent_raw_scores if isinstance(i, float))
-        if not self.all_time_records['Best Single']:
-            self.all_time_records['Best Single']['score'] = score
-            self.all_time_records['Best Single']['name'] = f'{player.fname} {player.lname}'
-        elif type(score) is float and score < self.all_time_records['Best Single']['score']:
-            line = ''
-            for _ in range(25): line += '='
-            print("\n" + line)
-            print(
-                f"\nNew World Record Single by {player.fname} {player.lname} with a time of [{score}]! \n"
-                f"Beat {self.all_time_records['Best Single']['name']}'s time of [{self.all_time_records['Best Single']['score']}]")
-            print("\n" + line)
-            # TODO remove
-            # time.sleep(5)
-            self.all_time_records['Best Single']['score'] = score
-            self.all_time_records['Best Single']['name'] = f'{player.fname} {player.lname}'
+            #time.sleep(6-rank)
+        else:
+            print(print_record)
 
 
 
     def getHeader(self, type):
         if type == "ao5":
-            return ["Rank, First Name, Last Name, AO5, AO5 Times, Event Num, Event"]
+            return ["Rank", "First Name", "Last Name", "AO5", "AO5 Times", "Event Num", "Event"]
         if type == "single":
-            return ["Rank, First Name, Last Name, Time, Event Num, Event"]
+            return ["Rank", "First Name", "Last Name", "Time", "Event Num", "Event"]
         return []
