@@ -391,8 +391,6 @@ class Event:
         time.sleep(match_sleep)
 
     def setWinner(self, match, winner, loser):
-
-        self.roster_obj.records.checkRecords(winner, self.event_records)
         if loser.winners_bracket:
             self.roster_obj.records.checkRecords(loser, self.event_records)
             self.win_num -= 1
@@ -408,7 +406,8 @@ class Event:
                 self.final_rankings.insert(0, winner)
                 self.roster_obj.records.checkRecords(winner, self.event_records, 1)
                 winner.win_count += 1
-
+            else:
+                self.roster_obj.records.checkRecords(winner, self.event_records)
 
 
 

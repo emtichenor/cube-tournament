@@ -196,7 +196,7 @@ class Roster:
         print("Your roster will be auto-generated based on your times.")
         difficulty = ""
         for _ in range(1000):
-            difficulty = input("Please enter a difficulty: [Easy, Medium, or Hard\n")
+            difficulty = input("Please enter a difficulty: [Easy, Medium, or Hard]\n")
             if difficulty not in ["Easy", "easy", "medium", "Medium", "Hard", "hard"]:
                 print("Invalid Input!\n\n")
                 continue
