@@ -76,7 +76,7 @@ class Campaign:
         self.tournaments = []
         for i in range(10):
             name = Roster.randomTournamentName()
-            if i < 3: quali = 128
+            if i < 1: quali = 128
             elif i < 8: quali = 64
             else: quali = 32
             self.tournaments.append([(i+1),name,quali,"N/A","N/A","N/A"])

@@ -11,7 +11,7 @@ class Score:
         if "DNF" in processed_scores:
             ao5 = "DNF"
         else:
-            ao5 = round(mean(processed_scores),3)
+            ao5 = round(mean(processed_scores),2)
         ao5_set = {"ao5":ao5, "raw_scores": raw_scores}
         return ao5_set
 
@@ -27,7 +27,7 @@ class Score:
     def single(player):
         if random.uniform(0,100) < player.consistency:
             return "DNF"
-        return float(round(random.gauss(player.expected_score, player.consistency), 3))
+        return float(round(random.gauss(player.expected_score, player.consistency), 2))
 
     @staticmethod
     def handle_dnf(e):

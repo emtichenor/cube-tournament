@@ -145,7 +145,7 @@ class Roster:
             consistency = roster_values["consistency"][0]
             consistency_sd = roster_values["consistency"][1]
             for person in initial_roster:
-                person.append(round(random.gauss(exp_score, exp_score_sd), 3))
+                person.append(round(random.gauss(exp_score, exp_score_sd), 2))
                 person.append(round(random.gauss(consistency, consistency_sd), 2))
                 person += ['N/A' for i in range(len(Player.getHeader())-5)]
                 csvwriter.writerow(person)
@@ -231,11 +231,11 @@ class Roster:
 
     def improve(self, player):
         if isinstance(player, list):
-            player[3] = round(player[3] * random.gauss(0.99, 0.01),3)
+            player[3] = round(player[3] * random.gauss(0.99, 0.01),2)
             player[4] = round(player[4] * random.gauss(0.98, 0.01),2)
         else:
             if isinstance(player.expected_score, float):
-                player.expected_score = round(player.expected_score * random.gauss(0.99, 0.01), 3)
+                player.expected_score = round(player.expected_score * random.gauss(0.99, 0.01), 2)
                 player.consistency = round(player.consistency * random.gauss(0.98, 0.01), 2)
 
     def loadRecords(self, filename):
@@ -317,7 +317,7 @@ class Roster:
         consistency = self.roster_values["consistency"][0]
         consistency_sd = self.roster_values["consistency"][1]
         for p in initial_roster:
-            p.append(round(random.gauss(exp_score, exp_score_sd), 3))
+            p.append(round(random.gauss(exp_score, exp_score_sd), 2))
             p.append(round(random.gauss(consistency, consistency_sd), 2))
             new_player = Player(p + ['N/A' for _ in range(len(Player.getHeader()) - 5)])
             self.roster.append(new_player)

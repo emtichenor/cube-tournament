@@ -113,7 +113,7 @@ class Records:
                 if placement < player.best_placing:
                     player.best_placing = placement
                 player.avg_placing = round(
-                    (player.avg_placing * (player.num_events - 1) + placement) / player.num_events, 2)
+                    (player.avg_placing * (player.num_events - 1) + placement) / player.num_events, 1)
                 if placement < 4: player.podium_count += 1
             else:
                 player.best_placing = placement
@@ -142,7 +142,7 @@ class Records:
             if type(score) is float:
                 new_total = player.avg_event_time * player.event_solves + score
                 player.event_solves += 1
-                player.avg_event_time = round(new_total / player.event_solves, 3)
+                player.avg_event_time = round(new_total / player.event_solves, 2)
             else:
                 player.event_DNF_count += 1
 
