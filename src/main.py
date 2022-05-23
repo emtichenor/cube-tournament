@@ -1,12 +1,7 @@
-import csv
-import statistics
+from src.Campaign import Campaign
+from Tests.Config import Config
+from src.PracticeTournament import PracticeTournament
 
-from Files.src.Campaign import Campaign
-from Files.src.Event import Event
-from Files.src.Roster import Roster
-from Files.Tests.Config import Config
-from Files.src.PracticeTournament import PracticeTournament
-from faker import Faker
 TEST_MODE = False
 
 def practiceTournamentMenu(options):

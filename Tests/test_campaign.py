@@ -1,5 +1,5 @@
 from unittest.mock import patch
-from Files.src.Campaign import Campaign
+from src.Campaign import Campaign
 import os
 
 @patch('Files.src.Campaign.input')

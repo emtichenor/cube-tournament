@@ -2,11 +2,10 @@ import csv
 import re
 import shutil
 import statistics
-import time
 
 from faker import Faker
-from Files.src.Records import Records
-from Files.src.Player import Player
+from src.Records import Records
+from src.Player import Player
 from datetime import datetime
 import random
 import os
@@ -45,7 +44,8 @@ class Roster:
 
         if self.campaign_flag:
             self.season_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/")))
-            self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/Season_{self.season_num}")) / 2)
+            self.event_num = int(len(os.listdir(
+                f"../Data/{self.roster_folder}/{filename}/Tournaments/Season_{self.season_num}")) / 2)
         else:
             self.event_num = int(len(os.listdir(f"../Data/{self.roster_folder}/{filename}/Tournaments/")) / 2)
 
@@ -90,6 +90,7 @@ class Roster:
                 break
             except OSError as error:
                 print(f"A roster named {self.roster_name} already exists!\n")
+                print(error)
         os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}/Tournaments")
         os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}/Rosters")
         os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}/Rosters/Backups")

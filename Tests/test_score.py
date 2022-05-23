@@ -1,4 +1,4 @@
-from Files.src.Score import Score
+from src.Score import Score
 def test_print_ao5_times():
     assert Score.print_ao5_times(['DNF' for _ in range(5)]) == "[(DNF), (DNF), DNF, DNF, DNF]"
     assert Score.print_ao5_times([30.0, 50.1, 42.3, 34.3, 35.3]) == "[(30.0), (50.1), 42.3, 34.3, 35.3]"

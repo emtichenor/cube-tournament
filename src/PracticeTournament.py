@@ -1,7 +1,7 @@
 import os
 
-from Files.src.Event import Event
-from Files.src.Roster import Roster
+from src.Event import Event
+from src.Roster import Roster
 
 
 class PracticeTournament:
