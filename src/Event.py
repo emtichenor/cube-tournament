@@ -1,8 +1,7 @@
 import csv
-import os
 import time
 
-from Files.src.Score import Score
+from src.Score import Score
 from double_elimination import Tournament as DoubleEliminationTournament, Match
 
 ordinal = lambda rank: "%d%s" % (rank, "tsnrhtdd"[(rank // 10 % 10 != 1) * (rank % 10 < 4) * rank % 10::4]) # Black magic

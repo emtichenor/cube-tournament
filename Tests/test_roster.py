@@ -2,7 +2,7 @@ import csv
 import os
 import statistics
 from unittest.mock import patch
-from Files.src.Roster import Roster
+from src.Roster import Roster
 
 def test_randomTournamentName():
     name = Roster().randomTournamentName()

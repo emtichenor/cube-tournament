@@ -1,13 +1,13 @@
 from unittest.mock import patch
-from Files.src import main
-from Files.Tests.Config import Config
-from Files.src.Roster import Roster
+from src import main
+from Tests import Config
+from src.Roster import Roster
 import os
 
 @patch('time.sleep')
 def test_integration(patch_time):
     print(os.getcwd())
-    os.chdir('../')
+    os.chdir('../Files/')
     main.practiceTournament(Config.get_options(True))
 
     roster = Roster()
