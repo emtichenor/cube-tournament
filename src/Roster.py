@@ -22,6 +22,7 @@ class Roster:
         self.event_num = 0
         self.records = None
         self.season_num = None
+        self.user = None
         if self.campaign_flag:
             self.roster_folder = "Campaigns"
         else:
@@ -39,6 +40,8 @@ class Roster:
         self.header = next(csvreader)
         for row in csvreader:
             person = Player(row)
+            if not isinstance(person.expected_score, float):
+                self.user = person
             self.roster.append(person)
         file.close()
 

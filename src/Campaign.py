@@ -4,7 +4,7 @@ import os
 from src.Event import Event
 from src.Roster import Roster
 
-
+ordinal = lambda rank: "%d%s" % (rank, "tsnrhtdd"[(rank // 10 % 10 != 1) * (rank % 10 < 4) * rank % 10::4]) # Black magic
 class Campaign:
     def __init__(self, options):
         self.tournaments = []
@@ -249,9 +249,46 @@ class Campaign:
                 csvfile.close()
 
     def displaySchedule(self):
-        pass
+        print("{:<2} {:<30} {:<7} {:<10} {:<8} {:<20} {:<20} {:<20}".format("#", "Name", "Type", "Invite Num", "Num Quali", "1st", "2nd", "3rd"))
+     #TODO update Schedules file and add what youre adding here...
+        for tourn in self.tournaments:
+            if tourn[0] > 6:
+                type = "Invite"
+                if tourn[0] > 10:
+                    inv_num = 16
+                    num_q = 16
+                elif tourn[0] > 8:
+                    inv_num = 50
+                    num_q = 32
+                else:
+                    inv_num = 100
+                    num_q = 64
+            else:
+                type = "Open"
+                inv_num = "N/A"
+                if tourn[0] > 2:
+                    num_q = 128
+                else:
+                    num_q = 64
+            print("{:<2} {:<30} {:<7} {:<10} {:<8} {:<20} {:<20} {:<20}".format(
+                tourn[0], tourn[1], type, inv_num,num_q,tourn[2],tourn[3],tourn[4]))
     def displayStandings(self):
-        pass
+        user = False
+        print("{:<5} {:<7} {:<20} {:<20}".format("Rank", "Pts", "Name", "Placings"))
+        for i in range(25):
+            if self.season_rankings[i] == self.roster.user:
+                user = True
+            name = self.season_rankings[i][1]+" "+ self.season_rankings[i][2]
+            print("{:<5} {:<4} {:<20} {:<20}".format(ordinal(i+1), self.season_rankings[i][0],name , self.season_rankings[i][3]))
+        if not user:
+            print("...")
+            for player in self.season_rankings[25:]:
+                if self.roster.user.fname == player[1] and self.roster.user.lname == player[2]:
+                    name = player[1] + " " + player[2]
+                    print("{:<5} {:<4} {:<20} {:<20}".format(ordinal(self.season_rankings.index(player)), player[0], name, player[3]))
+                    break
+        input("\nPress enter to go back to the menu.")
+
     def displayRecords(self):
         pass
     def calcPoints(self, placing):

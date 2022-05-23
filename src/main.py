@@ -52,9 +52,9 @@ def menu(test_mode=False):
 
 def garbage():
     mylist = ["Rank", "First Name", "Last Name", "AO5", "AO5 Times"," Event Num"," Event"]
-    a = [3,3,3,3,3,3,3]
-    mylist3 = dict(zip(mylist,a))
-    print(mylist3)
+    a = ["Rank", "Points", "Name"]
+
+    print("{:<5} {:7} {:10}".format(a[0],a[1],a[2]))
     quit()
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
