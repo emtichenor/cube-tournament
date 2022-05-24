@@ -45,7 +45,7 @@ class Campaign:
             self.season_num = len(os.listdir(schedule_path))
             print(f"\nCampgaign: {self.campaign_name}")
             print(f"Season {self.season_num}")
-            print(f"Event {self.next_tournament[0]}\n{self.next_tournament[1]}")
+            print(f"Event {self.next_tournament['Num']}\n{self.next_tournament['Name']}")
             c = input("\nPlease select an option\n1: Play Next Event \n2: Schedule\n3: Standings\n4: Records\n5: Quit\n")
             if c == '1':
                 print("Starting new event!\n")
@@ -73,20 +73,40 @@ class Campaign:
     def generateSeason(self):
         # 3 opens with 128 quali, 3 opens with 64 quali, 2 closed 100 inv with 64 quali, 2 closed 50 inv with 32 quali, championship
         self.tournaments = []
-        for i in range(10):
-            name = Roster.randomTournamentName()
-            if i < 1: quali = 128
-            elif i < 8: quali = 64
-            else: quali = 32
-            self.tournaments.append([(i+1),name,quali,"N/A","N/A","N/A"])
+        for i in range(1,11):
+            if i in [3,6]:
+                quali = 128
+                inv = 'N/A'
+                t_type = "Open"
+                name = self.roster.randomTournamentName(big=True)
+            elif i <= 6:
+                quali = 64
+                inv = 'N/A'
+                t_type = "Open"
+                name = self.roster.randomTournamentName()
+            elif i <= 8:
+                quali = 64
+                inv = 100
+                t_type = "Invite"
+                name = self.roster.randomTournamentName(invite=True)
+            else:
+                quali = 32
+                inv = 50
+                t_type = "Invite"
+                name = self.roster.randomTournamentName(invite=True)
+            tourn = {'Num': i,'Name': name,'Type':t_type,'Invite Num':inv,'Num Quali':quali,'First':'N/A','Second':'N/A','Third':'N/A'}
+            self.tournaments.append(tourn)
         schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
         self.season_num = self.season_num + 1
         self.roster.event_num = 0
-        self.tournaments.append([11, f"Season {self.season_num} Championship",16,"N/A","N/A","N/A"])
+        city = Roster.randomTournamentName(championship=True)
+        tourn = {'Num': len(self.tournaments)+1, 'Name': f"Season {self.season_num} Championship in {city}", 'Type': "Invite", 'Invite Num': 16, 'Num Quali': 16,
+                 'First': 'N/A', 'Second': 'N/A', 'Third': 'N/A'}
+        self.tournaments.append(tourn)
         schedule_path = schedule_path + f"Season_{self.season_num}.csv"
         with open(schedule_path , 'w', newline='') as csvfile:
-            csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(["Num", "Name", "Num Quali", "First", "Second", "Third"])
+            csvwriter = csv.DictWriter(csvfile, ['Num','Name','Type','Invite Num','Num Quali','First','Second','Third'])
+            csvwriter.writeheader()
             for tourn in self.tournaments:
                 csvwriter.writerow(tourn)
             csvfile.close()
@@ -140,60 +160,59 @@ class Campaign:
                 self.season_roster.append(player)
 
         file = open(f'../Data/Campaigns/{self.campaign_name}/Schedules/Season_{self.season_num}.csv')
-        csvreader = csv.reader(file)
-        header = next(csvreader)
+        csvreader = csv.DictReader(file)
+
         for tourn in csvreader:
-            tourn[0] = int(tourn[0])
-            tourn[2] = int(tourn[2])
+            tourn["Num"] = int(tourn["Num"])
+            if tourn["Invite Num"] != 'N/A': tourn["Invite Num"] = int(tourn["Invite Num"])
+            tourn["Num Quali"] = int(tourn["Num Quali"])
             self.tournaments.append(tourn)
         file.close()
         for tourn in self.tournaments:
-            if tourn[3] == 'N/A':
+            if tourn["First"] == 'N/A':
                 self.next_tournament = tourn
                 break
 
 
     def runEvent(self):
-        self.options['num_qualify'] = self.next_tournament[2]
-        if self.next_tournament[0] > 10:
+        self.options['num_qualify'] = self.next_tournament["Num Qualify"]
+        if self.next_tournament["Num"] > 10:
             self.runChampionship()
             return
-        elif self.next_tournament[0] > 8:
-            event_roster = self.sortRoster(50)
-        elif self.next_tournament[0] > 6:
-            event_roster = self.sortRoster(100)
+        elif self.next_tournament["Type"] == "Invite":
+            event_roster = self.sortRoster(self.next_tournament["Invite Num"])
         else:
             event_roster = self.season_roster
-        self.event = Event(self.next_tournament[1], event_roster, self.roster, self.options)
+        self.event = Event(self.next_tournament["Name"], event_roster, self.roster, self.options)
         self.event.qualify()
         self.event.tournament()
         self.saveEvent()
 
     def runChampionship(self):
         event_roster = self.sortRoster(16)
-        self.event = Event(self.next_tournament[1], event_roster, self.roster, self.options)
+        self.event = Event(self.next_tournament["Name"], event_roster, self.roster, self.options)
         for p in event_roster:
             p.qualify_rank = event_roster.index(p) + 1
             if not isinstance(p.expected_score, float):
                 self.event.user = p
                 break
-        print(f"\n\nWelcome to the {self.next_tournament[1]}!\n\n")
+        print(f"\n\nWelcome to the {self.next_tournament['Name']}!\n\n")
         self.event.qualify_rankings = event_roster.copy()
         self.event.tournament()
 
         final_rankings = self.event.saveTournament()
         winner = final_rankings[0]
-        print(f"\n{winner.fname} {winner.lname} won the {self.next_tournament[1]}!\n")
+        print(f"\n{winner.fname} {winner.lname} won the {self.next_tournament['Name']}!\n")
         winner.championships += 1
 
-        self.next_tournament[3] = f"{final_rankings[0].fname} {final_rankings[0].lname}"
-        self.next_tournament[4] = f"{final_rankings[1].fname} {final_rankings[1].lname}"
-        self.next_tournament[5] = f"{final_rankings[2].fname} {final_rankings[2].lname}"
+        self.next_tournament["First"] = f"{final_rankings[0].fname} {final_rankings[0].lname}"
+        self.next_tournament["Second"] = f"{final_rankings[1].fname} {final_rankings[1].lname}"
+        self.next_tournament["Third"] = f"{final_rankings[2].fname} {final_rankings[2].lname}"
 
         schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
         with open(schedule_path+f"Season_{self.season_num}.csv", 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(['Num', 'Name', 'Num Quali', 'First', 'Second', 'Third'])
+            csvwriter.writerow(['Num','Name','Type','Invite Num','Num Quali','First','Second','Third'])
             for tourn in self.tournaments:
                 csvwriter.writerow(tourn)
             csvfile.close()
@@ -236,42 +255,23 @@ class Campaign:
                 if isNext:
                     self.next_tournament = tourn
                     break
-                elif tourn[3] == 'N/A':
-                    tourn[3] = f"{final_rankings[0].fname} {final_rankings[0].lname}"
-                    tourn[4] = f"{final_rankings[1].fname} {final_rankings[1].lname}"
-                    tourn[5] = f"{final_rankings[2].fname} {final_rankings[2].lname}"
+                elif tourn["First"] == 'N/A':
+                    tourn["First"] = f"{final_rankings[0].fname} {final_rankings[0].lname}"
+                    tourn["Second"] = f"{final_rankings[1].fname} {final_rankings[1].lname}"
+                    tourn["Third"] = f"{final_rankings[2].fname} {final_rankings[2].lname}"
                     isNext = True
             with open(schedule_path+f"Season_{self.season_num}.csv", 'w', newline='') as csvfile:
-                csvwriter = csv.writer(csvfile)
-                csvwriter.writerow(['Num','Name','Num Quali','First','Second','Third'])
+                csvwriter = csv.DictWriter(csvfile, ['Num','Name','Type','Invite Num','Num Quali','First','Second','Third'])
                 for tourn in self.tournaments:
                     csvwriter.writerow(tourn)
                 csvfile.close()
 
     def displaySchedule(self):
-        print("{:<2} {:<30} {:<7} {:<10} {:<8} {:<20} {:<20} {:<20}".format("#", "Name", "Type", "Invite Num", "Num Quali", "1st", "2nd", "3rd"))
-     #TODO update Schedules file and add what youre adding here...
+        print("{:<2} {:<50} {:<7} {:<10} {:<8} {:<20} {:<20} {:<20}".format("#", "Name", "Type", "Invited", "Quali", "1st", "2nd", "3rd"))
         for tourn in self.tournaments:
-            if tourn[0] > 6:
-                type = "Invite"
-                if tourn[0] > 10:
-                    inv_num = 16
-                    num_q = 16
-                elif tourn[0] > 8:
-                    inv_num = 50
-                    num_q = 32
-                else:
-                    inv_num = 100
-                    num_q = 64
-            else:
-                type = "Open"
-                inv_num = "N/A"
-                if tourn[0] > 2:
-                    num_q = 128
-                else:
-                    num_q = 64
-            print("{:<2} {:<30} {:<7} {:<10} {:<8} {:<20} {:<20} {:<20}".format(
-                tourn[0], tourn[1], type, inv_num,num_q,tourn[2],tourn[3],tourn[4]))
+            print("{:<2} {:<50} {:<7} {:<10} {:<8} {:<20} {:<20} {:<20}".format(
+                tourn["Num"], tourn["Name"], tourn["Type"], tourn["Invite Num"],tourn["Num Quali"],tourn["First"],tourn["Second"],tourn["Third"]))
+        input("\nPress enter to go back to the menu.")
     def displayStandings(self):
         user = False
         print("{:<5} {:<7} {:<20} {:<20}".format("Rank", "Pts", "Name", "Placings"))

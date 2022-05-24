@@ -338,7 +338,16 @@ class Event:
             right.recent_ao5 = Score.ao5(right_scores)["ao5"]
             left.recent_raw_scores = left_scores
             right.recent_raw_scores = right_scores
-            if left.recent_ao5 <= right.recent_ao5:
+            if type(right.recent_ao5) is str and type(right.recent_ao5) is str:
+                winner = left
+                loser = right
+            elif type(right.recent_ao5) is str:
+                winner = left
+                loser = right
+            elif type(left.recent_ao5) is str:
+                winner = right
+                loser = left
+            elif left.recent_ao5 <= right.recent_ao5:
                 winner = left
                 loser = right
             else:

@@ -51,10 +51,8 @@ def menu(test_mode=False):
 
 
 def garbage():
-    mylist = ["Rank", "First Name", "Last Name", "AO5", "AO5 Times"," Event Num"," Event"]
-    a = ["Rank", "Points", "Name"]
-
-    print("{:<5} {:7} {:10}".format(a[0],a[1],a[2]))
+    for i in range(1,11):
+        print(i)
     quit()
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
