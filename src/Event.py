@@ -45,7 +45,7 @@ class Event:
         if self.user:
             self.qualify_rankings.sort(key=Event.get_score)
             print(f'Your Average was [{self.user.recent_ao5}]')
-            print(f'with times of {Score.print_ao5_times(self.user.recent_raw_scores)}')
+            print(f'with times of {Score.print_ao5_times(self.user.recent_raw_scores)}')#TODO 3
             print(f"Cutoff for Qualification was: [{self.qualify_rankings[self.num_qualify-1].recent_ao5}]")
             user_seed = self.qualify_rankings.index(self.user) + 1
             if self.num_qualify > user_seed:
@@ -127,7 +127,7 @@ class Event:
             print('.')
         print(f'The Best Single from this event was [{self.event_records["Best Single"]["score"]}] set by {self.event_records["Best Single"]["name"]}')
         print(f'The Best Average from this event was [{self.event_records["Best AO5"]["ao5"]}] set by {self.event_records["Best AO5"]["name"]}')
-        print(f'with times of {Score.print_ao5_times(self.event_records["Best AO5"]["raw_scores"])}\n\n')
+        print(f'with times of {Score.print_ao5_times(self.event_records["Best AO5"]["raw_scores"])}\n\n') #TODO 2
         if self.user: print(f'\n\nYou finished in {ordinal(self.user.final_rank)} place!\n')
         if not self.options['NO_INPUT_FLAG']: input("Press enter to go back to the main menu")
         print('\n\n\n\n\n\n----------------------------------------------------------------')
@@ -221,7 +221,7 @@ class Event:
         left = match.get_participants()[0].competitor
         right = match.get_participants()[1].competitor
         print(f'Upcoming match:  {left.format_seed():<25} vs {right.format_seed():>25}')
-        print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs               Last AO5:  [{right.recent_ao5}]')
+        print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs               Last AO5:  [{right.recent_ao5}]')#TODO 2
 
         while True:
             if self.options['TEST_FLAG']:
@@ -246,7 +246,7 @@ class Event:
             if i > 1:
                 print("\n\n--------------------------------------------")
                 print(self.getRound(self.user.winners_bracket))
-                print(f'Current match: {self.user.format_seed():<25} vs {opp.format_seed():>25}')
+                print(f'Current match: {self.user.format_seed():<25} vs {opp.format_seed():>25}')#TODO 4
                 print(f"Current AO5: {[str(user_scores) for user_scores in user_scores]}   vs   "
                       f"Current AO5: {[str(opp_scores) for opp_scores in opp_scores]}")
             input(f"Press enter to start solve {i}  ")
@@ -308,7 +308,7 @@ class Event:
         print(f'Scores: {Score.print_ao5_times(winner.recent_raw_scores)}')
         print('          VS')
         print(f'Loser: {loser.format_seed()} [{loser.recent_ao5}]')
-        print(f'Scores: {Score.print_ao5_times(loser.recent_raw_scores)}')
+        print(f'Scores: {Score.print_ao5_times(loser.recent_raw_scores)}')#TODO 4
         self.setWinner(self.det.get_active_matches_for_competitor(self.user)[0], winner, loser)
 
 
@@ -321,7 +321,7 @@ class Event:
             print("\n\n--------------------------------------------")
             print(self.getRound(left.winners_bracket))
             print(f'Upcoming match: {left.format_seed():<25} vs {right.format_seed():>25}')
-            print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs         Last AO5:  [{right.recent_ao5}]\n\n')
+            print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs         Last AO5:  [{right.recent_ao5}]\n\n')#TODO 2
             time.sleep(2)
             for i in range(1,6):
                 left_score = Score.single(left)
@@ -330,7 +330,7 @@ class Event:
                 right_scores.append(right_score)
                 print(f'Solve {i}:')
                 time.sleep(3)
-                print(f'{left.format_seed()}: [{left_score}]')
+                print(f'{left.format_seed()}: [{left_score}]')#TODO 2
                 time.sleep(2)
                 print(f'{right.format_seed()}: [{right_score}]')
                 time.sleep(2)
@@ -358,7 +358,7 @@ class Event:
             print(self.getRound(winner.winners_bracket))
             print('Match Results: ')
             print(f'Winner: {winner.format_seed()} [{winner.recent_ao5}]')
-            print(f'Scores: {Score.print_ao5_times(winner.recent_raw_scores)}')
+            print(f'Scores: {Score.print_ao5_times(winner.recent_raw_scores)}')#TODO 4
             print('          VS')
             print(f'Loser: {loser.format_seed()} [{loser.recent_ao5}]')
             print(f'Scores: {Score.print_ao5_times(loser.recent_raw_scores)}')
@@ -392,7 +392,7 @@ class Event:
             print(f'Scores: {Score.print_ao5_times(winner.recent_raw_scores)}')
             print('          VS')
             print(f'Loser: {loser.format_seed()} [{loser.recent_ao5}]')
-            print(f'Scores: {Score.print_ao5_times(loser.recent_raw_scores)}')
+            print(f'Scores: {Score.print_ao5_times(loser.recent_raw_scores)}')#TODO 4
         self.setWinner(match, winner, loser)
         if self.active_matches_count > 8: match_sleep = 20 / self.active_matches_count
         else: match_sleep = 2.5
