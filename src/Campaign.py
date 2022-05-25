@@ -99,7 +99,7 @@ class Campaign:
         schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
         self.season_num = self.season_num + 1
         self.roster.event_num = 0
-        city = Roster.randomTournamentName(championship=True)
+        city = self.roster.randomTournamentName(championship=True)
         tourn = {'Num': len(self.tournaments)+1, 'Name': f"Season {self.season_num} Championship in {city}", 'Type': "Invite", 'Invite Num': 16, 'Num Quali': 16,
                  'First': 'N/A', 'Second': 'N/A', 'Third': 'N/A'}
         self.tournaments.append(tourn)
@@ -175,7 +175,7 @@ class Campaign:
 
 
     def runEvent(self):
-        self.options['num_qualify'] = self.next_tournament["Num Qualify"]
+        self.options['num_qualify'] = self.next_tournament["Num Quali"]
         if self.next_tournament["Num"] > 10:
             self.runChampionship()
             return
@@ -261,7 +261,8 @@ class Campaign:
                     tourn["Third"] = f"{final_rankings[2].fname} {final_rankings[2].lname}"
                     isNext = True
             with open(schedule_path+f"Season_{self.season_num}.csv", 'w', newline='') as csvfile:
-                csvwriter = csv.DictWriter(csvfile, ['Num','Name','Type','Invite Num','Num Quali','First','Second','Third'])
+                csvwriter = csv.DictWriter(csvfile, fieldnames=['Num','Name','Type','Invite Num','Num Quali','First','Second','Third'])
+                csvwriter.writeheader()
                 for tourn in self.tournaments:
                     csvwriter.writerow(tourn)
                 csvfile.close()
@@ -279,13 +280,21 @@ class Campaign:
             if self.season_rankings[i] == self.roster.user:
                 user = True
             name = self.season_rankings[i][1]+" "+ self.season_rankings[i][2]
-            print("{:<5} {:<4} {:<20} {:<20}".format(ordinal(i+1), self.season_rankings[i][0],name , self.season_rankings[i][3]))
+            placings = ""
+            for place in self.season_rankings[i][3:]:
+                placings += ordinal(place) + ", "
+            placings = placings[:-2]
+            print("{:<5} {:<4} {:<20} {:<20}".format(ordinal(i+1), self.season_rankings[i][0],name , placings))
         if not user:
             print("...")
             for player in self.season_rankings[25:]:
                 if self.roster.user.fname == player[1] and self.roster.user.lname == player[2]:
                     name = player[1] + " " + player[2]
-                    print("{:<5} {:<4} {:<20} {:<20}".format(ordinal(self.season_rankings.index(player)), player[0], name, player[3]))
+                    placings = ""
+                    for place in player[3:]:
+                        placings += ordinal(place) + ", "
+                    placings = placings[:-2]
+                    print("{:<5} {:<4} {:<20} {:<20}".format(ordinal(self.season_rankings.index(player)), player[0], name, placings))
                     break
         input("\nPress enter to go back to the menu.")
 
