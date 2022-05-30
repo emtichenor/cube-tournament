@@ -211,8 +211,8 @@ class Campaign:
 
         schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
         with open(schedule_path+f"Season_{self.season_num}.csv", 'w', newline='') as csvfile:
-            csvwriter = csv.writer(csvfile)
-            csvwriter.writerow(['Num','Name','Type','Invite Num','Num Quali','First','Second','Third'])
+            csvwriter = csv.DictWriter(csvfile, fieldnames=['Num','Name','Type','Invite Num','Num Quali','First','Second','Third'])
+            csvwriter.writeheader()
             for tourn in self.tournaments:
                 csvwriter.writerow(tourn)
             csvfile.close()
