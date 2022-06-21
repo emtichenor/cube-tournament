@@ -277,6 +277,8 @@ class Campaign:
         user = False
         print("{:<5} {:<7} {:<20} {:<20}".format("Rank", "Pts", "Name", "Placings"))
         for i in range(25):
+            if i == 16:
+                print("="*75)
             if self.season_rankings[i] == self.roster.user:
                 user = True
             name = self.season_rankings[i][1]+" "+ self.season_rankings[i][2]
