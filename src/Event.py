@@ -150,9 +150,9 @@ class Event:
                 print('\n\n'+'-'*74)
                 print('*'*31+'GRAND FINALS'+'*'*31)
                 print('-' * 74)
-                print(f'Upcoming match:  {left.format_seed():<25} vs {right.format_seed():>25}')
+                print(f'Upcoming match:  {left.format_seed():<25} v {right.format_seed():>25}')
                 print(
-                    f'Last AO5: [{str(left.recent_ao5) + "]":<25} vs               Last AO5:  [{right.recent_ao5}]')  # TODO 2
+                    f'Last AO5: [{str(left.recent_ao5) + "]":<25} v               Last AO5:  [{right.recent_ao5}]')  # TODO 2
                 print("\nYou have don't have a match this round.")
                 sim_input = input("Would you like to sim the grand finals? ")
                 if sim_input in ["yes", "y", "ye", "Yes", "Y"]:
@@ -243,17 +243,19 @@ class Event:
         right = match.get_participants()[1].competitor
         print(self.getRound(self.user.winners_bracket))
         print(f"Worst possible placing: Top {self.getWorstPossiblePlacing(self.user.winners_bracket)}")
-        print(f'Upcoming match:  {left.format_seed():<25} vs {right.format_seed():>25}')
-        print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs               Last AO5:  [{right.recent_ao5}]')#TODO 2
+        print(f'Upcoming match:  {left.format_seed():<25} v {right.format_seed():>25}')
+        print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} v               Last AO5:  [{right.recent_ao5}]')#TODO 2
 
         while True:
             if self.options['TEST_FLAG']:
                 self.userMatch(left, right)
                 break
-            ready = input("Ready to start the match? ")
+            ready = input("Ready to start the match? ('yes' to start). You can also type 'stats' to see matchup stats: ")
             if ready in ["yes", "y", "ye", "Yes", "Y"]:
                 self.userMatch(left, right)
                 break
+            elif 'stats' in ready:
+                self.matchupStats(left, right)
 
     def userMatch(self, left, right):
         if left is self.user: opp = right
@@ -267,12 +269,12 @@ class Event:
             if len(user_scores) > 0:
                 print("\n\n--------------------------------------------")
                 print(self.getRound(self.user.winners_bracket))
-                print(f'Current match: {self.user.format_seed():<25} vs {opp.format_seed():>25}')  # TODO 4
-                print(f"Current AO5: {[str(user_scores) for user_scores in user_scores]}   vs   "
+                print(f'Current match: {self.user.format_seed():<25} v {opp.format_seed():>25}')  # TODO 4
+                print(f"Current AO5: {[str(user_scores) for user_scores in user_scores]}   v   "
                       f"Current AO5: {[str(opp_scores) for opp_scores in opp_scores]}")
             if len(user_scores) == 4:
                 print("Possible AO5s:")
-                print(f"{Score.calc_scores_needed(user_scores)}       vs       {Score.calc_scores_needed(opp_scores)}")
+                print(f"{Score.calc_scores_needed(user_scores)}       v       {Score.calc_scores_needed(opp_scores)}")
             edit = input(f"Press enter to start solve {len(user_scores)+1} or type 'edit': ")
             if 'edit' in edit:
                 Score.edit_scores(user_scores)
@@ -337,8 +339,8 @@ class Event:
             print("\n\n--------------------------------------------")
             print(self.getRound(left.winners_bracket))
             print(f"Worst possible placing: Top {self.getWorstPossiblePlacing(left.winners_bracket)}")
-            print(f'Upcoming match: {left.format_seed():<25} vs {right.format_seed():>25}')
-            print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs         Last AO5:  [{right.recent_ao5}]\n\n')#TODO 2
+            print(f'Upcoming match: {left.format_seed():<25} v {right.format_seed():>25}')
+            print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} v         Last AO5:  [{right.recent_ao5}]\n\n')#TODO 2
             self.sleep(2)
             for i in range(1,6):
                 left_score = Score.single(left)
@@ -468,7 +470,7 @@ class Event:
         for match in matches:
             if match.is_ready_to_start() and match.get_participants()[0].competitor.winners_bracket:
                 was_match = True
-                print("\t{:<25} vs {:>25}".format(*[p.get_competitor().format_seed()
+                print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
                                             for p in match.get_participants()]))
         if not was_match:
             print("None")
@@ -477,7 +479,7 @@ class Event:
         for match in matches:
             if match.is_ready_to_start() and not match.get_participants()[0].competitor.winners_bracket:
                 was_match = True
-                print("\t{:<25} vs {:>25}".format(*[p.get_competitor().format_seed()
+                print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
                                             for p in match.get_participants()]))
         if not was_match:
             print("None")
@@ -523,6 +525,51 @@ class Event:
             else:
                 num = self.los_rnd
             return self.possible_placings[num-1]
+
+    def matchupStats(self, left, right):
+
+        stats = [["Stats", left.format_seed(), "v", right.format_seed()],
+                 ["Age", left.age, "v", right.age],
+                 ["Exp Score", left.expected_score, "v", right.expected_score],
+                 ["Consistency", left.consistency, "v", right.consistency],
+                 ["Best Single", left.best_single, "v", right.best_single],
+                 ["Best AO5", left.best_ao5, "v", right.best_ao5],
+                 ["Best Placing", left.best_placing, "v", right.best_placing],
+                 ["AVG Placing", left.avg_placing, "v", right.avg_placing],
+                 ["Num Events", left.num_events, "v", right.num_events],
+                 ["Championships", left.championships, "v", right.championships],
+                 ["Win Count", left.win_count, "v", right.win_count],
+                 ["Podium Count", left.win_count, "v", right.podium_count],
+                 ["WR Count", left.win_count, "v", right.wr_count]
+
+                 ]
+        total = ["Total",0,"v",0]
+        for stat in stats:
+            if (isinstance(stat[1],float) and isinstance(stat[3],float)) or (isinstance(stat[1],int) and isinstance(stat[3],int)):
+                if stat[1] == stat[3]:
+                    stat[2] = '='
+                    continue
+                flag = stat[1] > stat[3]
+                if 2 <= stats.index(stat) <= 7:
+                    flag = not flag
+                if flag:
+                    stat[2] = '>'
+                    total[1] +=1
+                else:
+                    stat[2] = '<'
+                    total[3] += 1
+        if total[1] == total[3]:
+            total[2] = '='
+        elif total[1] > total[3]:
+            total[2] = '>'
+        else:
+            total[2] = '<'
+        stats.append(total)
+        for stat in stats:
+            print("{:<13} {:>20} {:<1} {:<30}".format(stat[0],str(stat[1]),stat[2],str(stat[3])))
+
+
+
     @staticmethod
     def get_score(e):
         if e.recent_ao5 == "DNF": return 1000
