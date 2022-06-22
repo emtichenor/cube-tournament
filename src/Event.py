@@ -27,6 +27,7 @@ class Event:
         else:
             self.roster_obj.records.event_num = self.roster_obj.event_num
         self.elim_queue = []
+        self.setPossiblePlacings()
 
     def qualify(self):
         self.total_entrants = len(self.event_roster)
@@ -144,7 +145,15 @@ class Event:
             if self.det.get_active_matches_for_competitor(self.user):
                 self.userTournament()
             elif not sim_round:
-                print("You have don't have a match this round.")
+                left = finalists[0].competitor
+                right = finalists[1].competitor
+                print('\n\n'+'-'*74)
+                print('*'*31+'GRAND FINALS'+'*'*31)
+                print('-' * 74)
+                print(f'Upcoming match:  {left.format_seed():<25} vs {right.format_seed():>25}')
+                print(
+                    f'Last AO5: [{str(left.recent_ao5) + "]":<25} vs               Last AO5:  [{right.recent_ao5}]')  # TODO 2
+                print("\nYou have don't have a match this round.")
                 sim_input = input("Would you like to sim the grand finals? ")
                 if sim_input in ["yes", "y", "ye", "Yes", "Y"]:
                     sim_round = True
@@ -220,17 +229,20 @@ class Event:
                             print("Invalid Time!")
                             continue
                     scores.append(score)
+            edit = input("Press enter to continue or type 'edit' to edit your times: ")
+            if 'edit' in edit:
+                scores = Score.edit_scores(scores)
         else:
             scores = self.options['TEST_USER_QUALI']
-        edit = input("Press enter to continue or type 'edit' to edit your times: ")
-        if 'edit' in edit:
-            scores = Score.edit_scores(scores)
+
         return Score.ao5(scores)
 
     def userTournament(self):
         match = self.det.get_active_matches_for_competitor(self.user)[0]
         left = match.get_participants()[0].competitor
         right = match.get_participants()[1].competitor
+        print(self.getRound(self.user.winners_bracket))
+        print(f"Worst possible placing: Top {self.getWorstPossiblePlacing(self.user.winners_bracket)}")
         print(f'Upcoming match:  {left.format_seed():<25} vs {right.format_seed():>25}')
         print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs               Last AO5:  [{right.recent_ao5}]')#TODO 2
 
@@ -258,6 +270,9 @@ class Event:
                 print(f'Current match: {self.user.format_seed():<25} vs {opp.format_seed():>25}')  # TODO 4
                 print(f"Current AO5: {[str(user_scores) for user_scores in user_scores]}   vs   "
                       f"Current AO5: {[str(opp_scores) for opp_scores in opp_scores]}")
+            if len(user_scores) == 4:
+                print("Possible AO5s:")
+                print(f"{Score.calc_scores_needed(user_scores)}       vs       {Score.calc_scores_needed(opp_scores)}")
             edit = input(f"Press enter to start solve {len(user_scores)+1} or type 'edit': ")
             if 'edit' in edit:
                 Score.edit_scores(user_scores)
@@ -321,6 +336,7 @@ class Event:
         if not sim:
             print("\n\n--------------------------------------------")
             print(self.getRound(left.winners_bracket))
+            print(f"Worst possible placing: Top {self.getWorstPossiblePlacing(left.winners_bracket)}")
             print(f'Upcoming match: {left.format_seed():<25} vs {right.format_seed():>25}')
             print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs         Last AO5:  [{right.recent_ao5}]\n\n')#TODO 2
             self.sleep(2)
@@ -481,7 +497,32 @@ class Event:
             if self.los_num == 2 and self.win_num == 1: return "Losers Finals"
             else: return f"Losers Round {self.los_rnd}"
 
+    def setPossiblePlacings(self):
+        flag = False
+        placings = []
+        pop = 2
+        i = 1
+        while pop < self.num_qualify:
+            pop+=i
+            placings.insert(0, pop)
+            if flag:
+                i *= 2
+            flag = not flag
+        if pop != self.num_qualify:
+            placings[0] = self.num_qualify
+        self.possible_placings = placings
 
+    def getWorstPossiblePlacing(self, winners_bracket):
+        if self.win_num == 1 and self.los_num == 1:
+            return 2
+        elif winners_bracket and self.win_rnd == 1:
+            return self.num_qualify
+        else:
+            if winners_bracket:
+                num = 2 *(self.win_rnd - 1)
+            else:
+                num = self.los_rnd
+            return self.possible_placings[num-1]
     @staticmethod
     def get_score(e):
         if e.recent_ao5 == "DNF": return 1000

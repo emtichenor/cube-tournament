@@ -339,9 +339,10 @@ class Campaign:
 
     def displayRecords(self):
         pass
-    def calcPoints(self, placing):
-        if placing > 32: return 0
 
+    @staticmethod
+    def calcPoints(placing):
+        if placing > 32: return 0
         # 1 = 25, 2 = 18, 3 = 15, 4 = 12, T6 = 10, T8 = 8, T12 = 6, T16 = 4, T24 = 2,T32 = 1
         points = [25,18,15,12,10,10,8,8,6,6,6,6,4,4,4,4]
         for _ in range(8): points.append(2)

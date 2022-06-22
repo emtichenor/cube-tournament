@@ -54,28 +54,9 @@ def menu(test_mode=False):
 
 
 def garbage():
-    header = []
-    info = []
-    with open("../Data/Campaigns/Main/Rosters/current_roster.csv", 'r', newline='') as csvfile:
-        csvreader = csv.reader(csvfile)
-
-        i = 0
-        for row in csvreader:
-            if i < 3:
-                header.append(row)
-            else:
-                row.insert(12,'N/A')
-                info.append(row)
-            i +=1
-        csvfile.close()
-
-    with open("../Data/Campaigns/Main/Rosters/current_roster.csv", 'w', newline='') as csvfile:
-        csvwriter = csv.writer(csvfile)
-        for row in header:
-            csvwriter.writerow(row)
-        for row in info:
-            csvwriter.writerow(row)
-        csvfile.close()
+    li = [[6],[2],[3],[4],['n/a']]
+    li[:-1].sort(key=lambda x: x[0])
+    print(li)
     quit()
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")

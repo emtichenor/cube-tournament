@@ -153,6 +153,9 @@ class Roster:
                 person.append(round(random.gauss(exp_score, exp_score_sd), 2))
                 person.append(round(random.gauss(consistency, consistency_sd), 2))
                 person += ['N/A' for i in range(len(Player.getHeader())-5)]
+
+            initial_roster.sort(key=lambda x: x[3])
+            for person in initial_roster:
                 csvwriter.writerow(person)
             csvfile.close()
         shutil.copyfile(f"{filepath}/initial_roster.csv", f"{filepath}/current_roster.csv")
@@ -336,4 +339,4 @@ class Roster:
             p.append(round(random.gauss(consistency, consistency_sd), 2))
             new_player = Player(p + ['N/A' for _ in range(len(Player.getHeader()) - 5)])
             self.roster.append(new_player)
-
+        self.roster[1:].sort(key=lambda x : x.expected_score)

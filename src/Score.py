@@ -86,3 +86,20 @@ class Score:
                     else:
                         scores[num-1] = new_score
                 break
+    @staticmethod
+    def calc_scores_needed(input):
+        times = input.copy()
+        if times.count('DNF') > 1:
+            return "Best: [DNF]  Worst: [DNF]  "
+        elif any('DNF' == d for d in times):
+            times.remove('DNF')
+            return f"Best: [{round(mean(times),2)}]  Worst: [DNF]  "
+        else:
+            min_time = min(i for i in times if isinstance(i, float))
+            max_time = max(i for i in times if isinstance(i, float))
+            times.remove(min_time)
+            worst = round(mean(times),2)
+            times.append(min_time)
+            times.remove(max_time)
+            best = round(mean(times),2)
+            return f"Best: [{best}]  Worst: [{worst}]  "
