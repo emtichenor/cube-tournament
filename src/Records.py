@@ -82,14 +82,14 @@ class Records:
                 csvwriter.writerow(record)
             csvfile.close()
 
-    def checkRecords(self, player, event_records, placement=None):
-        self.checkPersonalRecords(player, placement)
+    def checkRecords(self, player, event_records):
+        self.checkPersonalRecords(player)
         self.checkPersonalEventRecords(player)
         self.checkEventRecords(player, event_records)
         self.checkAllTimeRecords(player)
 
 
-    def checkPersonalRecords(self, player, placement):
+    def checkPersonalRecords(self, player):
         if player.recent_ao5 == 'DNF':
             pass
         elif player.best_ao5 == 'N/A' or type(player.best_ao5) is not float:
@@ -106,20 +106,6 @@ class Records:
         elif type(score) is float and score < player.best_single:
             print(f"\nNew Best Single for {player.fname} {player.lname}! Improved [{player.best_single}] to [{score}]")
             player.best_single = score
-        if placement:
-            player.final_rank = placement
-            if type(player.best_placing) is int:
-                player.num_events += 1
-                if placement < player.best_placing:
-                    player.best_placing = placement
-                player.avg_placing = round(
-                    (player.avg_placing * (player.num_events - 1) + placement) / player.num_events, 1)
-                if placement < 4: player.podium_count += 1
-            else:
-                player.best_placing = placement
-                player.avg_placing = placement
-                player.num_events = 1
-                if placement < 4: player.podium_count = 1
 
     def checkPersonalEventRecords(self, player):
         if player.recent_ao5 == 'DNF':
@@ -200,6 +186,21 @@ class Records:
                 self.allTimeSingleThreshhold = self.allTimeSingleRecords[-1]["Time"]
                 self.printRecord("Time", score, player, rank)
 
+    def checkPlacementRecord(self, player, placement):
+        if placement:
+            player.final_rank = placement
+            if type(player.best_placing) is int:
+                player.num_events += 1
+                if placement < player.best_placing:
+                    player.best_placing = placement
+                player.avg_placing = round(
+                    (player.avg_placing * (player.num_events - 1) + placement) / player.num_events, 1)
+                if placement < 4: player.podium_count += 1
+            else:
+                player.best_placing = placement
+                player.avg_placing = placement
+                player.num_events = 1
+                if placement < 4: player.podium_count = 1
 
     def insertRecord(self, record_list, player, score = None):
         if not score:

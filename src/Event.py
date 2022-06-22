@@ -26,7 +26,7 @@ class Event:
             self.roster_obj.records.event_num = f"S{self.roster_obj.season_num}E{self.roster_obj.event_num}"
         else:
             self.roster_obj.records.event_num = self.roster_obj.event_num
-
+        self.elim_queue = []
 
     def qualify(self):
         self.total_entrants = len(self.event_roster)
@@ -64,7 +64,8 @@ class Event:
         for player in self.qualify_rankings:
             player.qualify_rank = rank
             if rank > self.num_qualify:
-                self.roster_obj.records.checkRecords(player, self.event_records, player.qualify_rank)
+                self.roster_obj.records.checkRecords(player, self.event_records)
+                self.roster_obj.records.checkPlacementRecord(player, player.qualify_rank)
             else:
                 self.roster_obj.records.checkRecords(player, self.event_records)
                 player.winners_bracket = True
@@ -84,17 +85,17 @@ class Event:
             active_matches = self.det.get_active_matches()
             self.active_matches_count = len(active_matches)
             self.printMatches(active_matches)
-            winners_round_matches = []
-            losers_round_matches = []
+            self.winners_round_matches = []
+            self.losers_round_matches = []
             for match in self.det.get_active_matches():
                 if match.get_participants()[0].competitor is self.user or match.get_participants()[1].competitor is self.user:
                     continue
                 elif match.get_participants()[0].competitor.winners_bracket:
-                    winners_round_matches.append(match)
+                    self.winners_round_matches.append(match)
                 else:
-                    losers_round_matches.append(match)
+                    self.losers_round_matches.append(match)
             if self.win_rnd > 0: self.los_rnd +=1
-            if winners_round_matches: self.win_rnd += 1
+            if self.winners_round_matches: self.win_rnd += 1
 
             if self.det.get_active_matches_for_competitor(self.user):
                 self.userTournament()
@@ -108,15 +109,15 @@ class Event:
                 if sim_input in ["all", "All"]: full_sim = True
 
 
-            while winners_round_matches or losers_round_matches:
+            while self.winners_round_matches or self.losers_round_matches:
                 if not sim_round:
                     skip = input("Press enter to see the next match (or type sim to skip this round): ")
                     if skip == 'sim': sim_round = True
-                if winners_round_matches:
-                    match = winners_round_matches.pop()
+                if self.winners_round_matches:
+                    match = self.winners_round_matches.pop()
                     self.simMatch(match, sim_round)
                 else:
-                    match = losers_round_matches.pop()
+                    match = self.losers_round_matches.pop()
                     self.simMatch(match, sim_round)
             if self.win_num == 1 and self.los_num == 1: grand_finals = True
 
@@ -404,15 +405,23 @@ class Event:
             self.win_num -= 1
             self.los_num += 1
         else:
-            ranking = self.win_num + self.los_num
-            self.roster_obj.records.checkRecords(loser, self.event_records, ranking)
-            self.final_rankings.insert(0, loser)
-            if loser is self.user:
-                print(f"\n\nYou've been eliminated from {self.name}!\nYou finished in {ordinal(ranking)} place.")
+            self.elim_queue.append(loser)
+            self.roster_obj.records.checkRecords(loser, self.event_records)
             self.los_num -= 1
+            if not self.losers_round_matches:
+                self.elim_queue.sort(key=lambda x: Event.get_score(x))
+                while self.elim_queue:
+                    ranking = self.win_num + self.los_num + len(self.elim_queue)
+                    loser = self.elim_queue.pop()
+                    self.final_rankings.insert(0, loser)
+                    self.roster_obj.records.checkPlacementRecord(loser, ranking)
+                    if loser is self.user:
+                        print(f"\n\nYou've been eliminated from {self.name}!\nYou finished in {ordinal(ranking)} place.")
+
             if (self.win_num + self.los_num) == 1:
                 self.final_rankings.insert(0, winner)
-                self.roster_obj.records.checkRecords(winner, self.event_records, 1)
+                self.roster_obj.records.checkRecords(winner, self.event_records)
+                self.roster_obj.records.checkPlacementRecord(winner, 1)
                 winner.win_count += 1
             else:
                 self.roster_obj.records.checkRecords(winner, self.event_records)

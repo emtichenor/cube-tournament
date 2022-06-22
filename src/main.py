@@ -54,24 +54,31 @@ def menu(test_mode=False):
 
 
 def garbage():
-    # info = [1,2,3,4,{"yes":5,"no":6}]
-    # # with open("../Data/test.csv", 'w', newline='') as csvfile:
-    # #     csvwriter = csv.writer(csvfile)
-    # #     csvwriter.writerow(info)
-    # #     csvfile.close()
-    #
-    # file = open('../Data/test.csv')
-    # csvreader = csv.reader(file)
-    # for row in csvreader:
-    #     info = row
-    # print(info[4])
-    # print(type(info[4]))
-    # import ast
-    # hmm = ast.literal_eval(info[4])
-    # print(hmm)
+    header = []
+    info = []
+    with open("../Data/Campaigns/Main/Rosters/current_roster.csv", 'r', newline='') as csvfile:
+        csvreader = csv.reader(csvfile)
+
+        i = 0
+        for row in csvreader:
+            if i < 3:
+                header.append(row)
+            else:
+                row.insert(12,'N/A')
+                info.append(row)
+            i +=1
+        csvfile.close()
+
+    with open("../Data/Campaigns/Main/Rosters/current_roster.csv", 'w', newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        for row in header:
+            csvwriter.writerow(row)
+        for row in info:
+            csvwriter.writerow(row)
+        csvfile.close()
     quit()
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
-    TESTING = False
+    TESTING = True
     #garbage()
     menu(TESTING)
