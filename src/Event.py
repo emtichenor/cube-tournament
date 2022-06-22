@@ -58,7 +58,7 @@ class Event:
 
         for _ in range(4):
             print(".")
-            time.sleep(0.5)
+            self.sleep(0.5)
         self.final_rankings = self.qualify_rankings[self.num_qualify:]
         rank = 1
         for player in self.qualify_rankings:
@@ -123,7 +123,7 @@ class Event:
         self.grandFinals()
         print(f'\n\n{self.final_rankings[0].format_seed()} won the {self.name}!')
         for _ in range(4):
-            time.sleep(0.5)
+            self.sleep(0.5)
             print('.')
         print(f'The Best Single from this event was [{self.event_records["Best Single"]["score"]}] set by {self.event_records["Best Single"]["name"]}')
         print(f'The Best Average from this event was [{self.event_records["Best AO5"]["ao5"]}] set by {self.event_records["Best AO5"]["name"]}')
@@ -252,8 +252,8 @@ class Event:
             input(f"Press enter to start solve {i}  ")
             opp_score = Score.single(opp)
             if not self.options['NO_INPUT_FLAG']:
-                if not isinstance(opp_score, float): time.sleep(opp.expected_score)
-                else: time.sleep(opp_score)
+                if not isinstance(opp_score, float): self.sleep(opp.expected_score)
+                else: self.sleep(opp_score)
             print("""----------------\nOPPONENT FINISHED\n-----------------""")
             while True:
                 score = input("Enter your time or say restart: ")
@@ -322,18 +322,18 @@ class Event:
             print(self.getRound(left.winners_bracket))
             print(f'Upcoming match: {left.format_seed():<25} vs {right.format_seed():>25}')
             print(f'Last AO5: [{str(left.recent_ao5)+"]":<25} vs         Last AO5:  [{right.recent_ao5}]\n\n')#TODO 2
-            time.sleep(2)
+            self.sleep(2)
             for i in range(1,6):
                 left_score = Score.single(left)
                 right_score = Score.single(right)
                 left_scores.append(left_score)
                 right_scores.append(right_score)
                 print(f'Solve {i}:')
-                time.sleep(3)
+                self.sleep(3)
                 print(f'{left.format_seed()}: [{left_score}]')#TODO 2
-                time.sleep(2)
+                self.sleep(2)
                 print(f'{right.format_seed()}: [{right_score}]')
-                time.sleep(2)
+                self.sleep(2)
             left.recent_ao5 = Score.ao5(left_scores)["ao5"]
             right.recent_ao5 = Score.ao5(right_scores)["ao5"]
             left.recent_raw_scores = left_scores
@@ -353,7 +353,7 @@ class Event:
             else:
                 winner = right
                 loser = left
-            time.sleep(2)
+            self.sleep(2)
             print("\n\n--------------------------------------------")
             print(self.getRound(winner.winners_bracket))
             print('Match Results: ')
@@ -396,7 +396,7 @@ class Event:
         self.setWinner(match, winner, loser)
         if self.active_matches_count > 8: match_sleep = 20 / self.active_matches_count
         else: match_sleep = 2.5
-        time.sleep(match_sleep)
+        self.sleep(match_sleep)
 
     def setWinner(self, match, winner, loser):
         if loser.winners_bracket:
@@ -477,6 +477,10 @@ class Event:
     def get_score(e):
         if e.recent_ao5 == "DNF": return 1000
         return e.recent_ao5
+
+    def sleep(self, time):
+        if not self.options["NO_SLEEP_FLAG"]:
+            time.sleep(time)
 
 
 

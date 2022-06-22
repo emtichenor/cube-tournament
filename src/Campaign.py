@@ -208,8 +208,45 @@ class Campaign:
         self.next_tournament["First"] = f"{final_rankings[0].fname} {final_rankings[0].lname}"
         self.next_tournament["Second"] = f"{final_rankings[1].fname} {final_rankings[1].lname}"
         self.next_tournament["Third"] = f"{final_rankings[2].fname} {final_rankings[2].lname}"
+        # Adds tournaments points
+        placing = 1
+        for player in final_rankings:
+            for s_player in self.season_rankings:
+                if player.fname == s_player[1] and player.lname == s_player[2]:
+                    s_player.append(placing)
+                    s_player[0] += self.calcPoints(placing)
+                    placing += 1
+                    break
+        self.season_rankings.sort(reverse=True, key=lambda x: (x[0], -min(x[3:])))
+        # Moves Championship winner to 1st in standings
+        for player in self.season_rankings:
+            if winner.fname == player[1] and winner.lname == player[2]:
+                self.season_rankings.remove(player)
+                self.season_rankings.insert(0, player)
+                break
+        placing = 1
+        for player in self.season_rankings:
+            for r_player in self.season_roster:
+                if r_player.fname == player[1] and r_player.lname == player[2]:
+                    if isinstance(r_player.season_finishes, dict):
+                        r_player.season_finishes[f"S{self.season_num}"] = ordinal(placing)
+                    else:
+                        r_player.season_finishes={f"S{self.season_num}": ordinal(placing)}
+                    placing += 1
+                    break
 
         schedule_path = f"../Data/Campaigns/{self.campaign_name}/Schedules/"
+        roster_path = f"../Data/Campaigns/{self.campaign_name}/Rosters/"
+        roster_path = roster_path + f"Season_{self.season_num}.csv"
+        with open(roster_path, 'w', newline='') as csvfile:
+            csvwriter = csv.writer(csvfile)
+            csvwriter.writerow(["Points", "First Name", "Last Name", "Placings"])
+            for player in self.season_rankings:
+                csvwriter.writerow(player)
+            csvfile.close()
+
+
+
         with open(schedule_path+f"Season_{self.season_num}.csv", 'w', newline='') as csvfile:
             csvwriter = csv.DictWriter(csvfile, fieldnames=['Num','Name','Type','Invite Num','Num Quali','First','Second','Third'])
             csvwriter.writeheader()

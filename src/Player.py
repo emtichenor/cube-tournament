@@ -1,4 +1,4 @@
-
+import ast
 
 
 
@@ -17,9 +17,10 @@ class Player:
         self.win_count = self.to_int(args[9])
         self.podium_count = self.to_int(args[10])
         self.wr_count = self.to_int(args[11])
-        self.best_single = self.to_float(args[12])
-        self.best_ao5 = self.to_float(args[13])
-        self.best_ao5_times = args[14]
+        self.season_finishes = self.to_dict(args[12])
+        self.best_single = self.to_float(args[13])
+        self.best_ao5 = self.to_float(args[14])
+        self.best_ao5_times = args[15]
 
         # For Event
         self.recent_ao5 = None
@@ -40,7 +41,7 @@ class Player:
 
     @staticmethod
     def getHeader():
-        return ["First Name","Last Name","Age","Expected Time","Consistency","Best Placing","AVG Placing","Num Events", "Championships","Wins","Podiums","World Records", "Best Single","Best AO5","Best AO5 Times"]
+        return ["First Name","Last Name","Age","Expected Time","Consistency","Best Placing","AVG Placing","Num Events", "Championships","Wins","Podiums","World Records","Season Finishes", "Best Single","Best AO5","Best AO5 Times"]
 
 
 
@@ -50,15 +51,24 @@ class Player:
             return var
         except ValueError as e:
             return arg
+
     def to_int(self, arg):
         try:
             var = int(arg)
             return var
         except ValueError as e:
             return arg
+
+    def to_dict(self, arg):
+        try:
+            var = ast.literal_eval(arg)
+            return var
+        except ValueError as e:
+            return arg
+
     def to_csv(self):
         return [self.fname, self.lname, self.age, self.expected_score, self.consistency,
-                self.best_placing, self.avg_placing, self.num_events, self.championships, self.win_count, self.podium_count, self.wr_count, self.best_single,
+                self.best_placing, self.avg_placing, self.num_events, self.championships, self.win_count, self.podium_count, self.wr_count, self.season_finishes, self.best_single,
                 self.best_ao5, self.best_ao5_times]
 
 
