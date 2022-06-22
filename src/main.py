@@ -72,6 +72,6 @@ def garbage():
     quit()
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
-    TESTING = True
+    TESTING = False
     #garbage()
     menu(TESTING)

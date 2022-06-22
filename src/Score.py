@@ -50,3 +50,39 @@ class Score:
         times[times.index(min_time)] = f'({min_time})'
         times[times.index(max_time)] = f'({max_time})'
         return f"[{', '.join(map(str,times))}]"
+    @staticmethod
+    def edit_scores(scores):
+        if not scores:
+            print("You don't have any times to edit!\n")
+            return scores
+        while True:
+            i = 0
+            print("\n---Editing Solves---")
+            for score in scores:
+                print(f"{i+1}. {score}")
+                i+=1
+            num = input("Type the number of the time you want to edit or type 'done': ")
+            try:
+                num = int(num)
+                if num <= 0 or num > len(scores):
+                    print("Invalid number!")
+                    continue
+            except ValueError:
+                if 'done' not in num:
+                    print("Invalid number!")
+                    continue
+                else:
+                    return scores
+
+            while True:
+                new_score = input("Please enter a new time: ")
+                try:
+                    new_score = float(new_score)
+                    scores[num - 1] = new_score
+                except ValueError:
+                    if 'DNF' not in new_score:
+                        print("Invalid time!")
+                        continue
+                    else:
+                        scores[num-1] = new_score
+                break

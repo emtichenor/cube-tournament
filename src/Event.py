@@ -204,16 +204,26 @@ class Event:
         You must be in the top {self.num_qualify} of {self.total_entrants} to qualify.\n\n
         """
         print(welcome_str)
+        print("Type 'edit' to edit any solves during quali.")
         scores = []
         if not self.options['TEST_FLAG']:
-            for i in range(5):
-                score = input(f"Solve {i+1}: ")
-                if score != "DNF":
-                    score = float(score)
-                scores.append(score)
+            while len(scores) < 5:
+                score = input(f"Solve {len(scores)+1}: ")
+                if "edit" in score:
+                    scores = Score.edit_scores(scores)
+                else:
+                    try:
+                        score = float(score)
+                    except ValueError:
+                        if score != "DNF":
+                            print("Invalid Time!")
+                            continue
+                    scores.append(score)
         else:
             scores = self.options['TEST_USER_QUALI']
-
+        edit = input("Press enter to continue or type 'edit' to edit your times: ")
+        if 'edit' in edit:
+            scores = Score.edit_scores(scores)
         return Score.ao5(scores)
 
     def userTournament(self):
@@ -235,42 +245,30 @@ class Event:
     def userMatch(self, left, right):
         if left is self.user: opp = right
         else: opp = left
-        i=1
         opp_scores = []
         user_scores = []
         if self.options['TEST_FLAG']:
-            i=7
             opp_scores = self.options['TEST_OPP_TIMES']
             user_scores = self.options['TEST_USER_TIMES']
-        while i < 6:
-            if i > 1:
+        while len(user_scores) < 5:
+            if len(user_scores) > 0:
                 print("\n\n--------------------------------------------")
                 print(self.getRound(self.user.winners_bracket))
-                print(f'Current match: {self.user.format_seed():<25} vs {opp.format_seed():>25}')#TODO 4
+                print(f'Current match: {self.user.format_seed():<25} vs {opp.format_seed():>25}')  # TODO 4
                 print(f"Current AO5: {[str(user_scores) for user_scores in user_scores]}   vs   "
                       f"Current AO5: {[str(opp_scores) for opp_scores in opp_scores]}")
-            input(f"Press enter to start solve {i}  ")
+            edit = input(f"Press enter to start solve {len(user_scores)+1} or type 'edit': ")
+            if 'edit' in edit:
+                Score.edit_scores(user_scores)
+                continue
             opp_score = Score.single(opp)
             if not self.options['NO_INPUT_FLAG']:
                 if not isinstance(opp_score, float): self.sleep(opp.expected_score)
                 else: self.sleep(opp_score)
             print("""----------------\nOPPONENT FINISHED\n-----------------""")
             while True:
-                score = input("Enter your time or say restart: ")
-                if score == "restart":
-                    while True:
-                        response = input("Say 'all' to restart the set, otherwise say 'last':")
-                        if response == 'all':
-                            i = 1
-                            opp_scores = []
-                            user_scores = []
-                            break
-                        elif response == 'last':
-                            break
-                        else:
-                            print("Please input one of the values correctly.")
-                    break
-                elif score != 'DNF':
+                score = input("Enter your time: ")
+                if score != 'DNF':
                     try:
                         score = float(score)
                     except ValueError:
@@ -279,8 +277,10 @@ class Event:
                 if score == 'DNF' or type(score) == float:
                     opp_scores.append(opp_score)
                     user_scores.append(score)
-                    i +=1
                     break
+        edit = input("Press enter to continue or type 'edit' to edit your times: ")
+        if 'edit' in edit:
+            user_scores = Score.edit_scores(user_scores)
 
         opp.recent_raw_scores = opp_scores
         self.user.recent_raw_scores = user_scores
