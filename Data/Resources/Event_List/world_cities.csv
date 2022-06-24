@@ -1,11 +1,8 @@
 Tokyo,Japan,37977000
-Jakarta,Indonesia,34540000
-Manila,Philippines,23088000
 Shanghai,China,22120000
 Sao Paulo,Brazil,22046000
-Seoul,"Korea, South",21794000
+Seoul,South Korea,21794000
 Mexico City,Mexico,20996000
-Guangzhou,China,20902000
 Beijing,China,19433000
 Cairo,Egypt,19372000
 New York,United States,18713220
@@ -14,8 +11,6 @@ Bangkok,Thailand,17066000
 Buenos Aires,Argentina,16157000
 Istanbul,Turkey,15154000
 Osaka,Japan,14977000
-Karachi,Pakistan,14835000
-Tehran,Iran,13633000
 Ho Chi Minh City,Vietnam,13312000
 Los Angeles,United States,12750807
 Rio de Janeiro,Brazil,12272000
@@ -29,24 +24,19 @@ Chicago,United States,8604203
 Hanoi,Vietnam,7785000
 Hong Kong,Hong Kong,7347000
 Santiago,Chile,7007000
-Dar es Salaam,Tanzania,6698000
 Miami,United States,6445545
 Madrid,Spain,6026000
-Baghdad,Iraq,5796000
 Singapore,Singapore,5745000
 Dallas,United States,5743938
 Philadelphia,United States,5649300
 Giza,Egypt,5598402
-Nairobi,Kenya,5545000
 Houston,United States,5464251
 Atlanta,United States,5449398
 Toronto,Canada,5429524
 Washington,United States,5379184
 Saint Petersburg,Russia,5351935
 Sydney,Australia,5312163
-Guadalajara,Mexico,5253000
 Melbourne,Australia,5078193
-Abidjan,Côte D’Ivoire,4980000
 Alexandria,Egypt,4870000
 Boston,United States,4688346
 Barcelona,Spain,4588000
@@ -54,29 +44,25 @@ Johannesburg,South Africa,4434827
 Casablanca,Morocco,4370000
 Monterrey,Mexico,4295000
 Phoenix,United States,4219697
-Jeddah,Saudi Arabia,3976000
 Seattle,United States,3789215
 Yokohama,Japan,3757630
 Berlin,Germany,3644826
 San Francisco,United States,3592294
 Montreal,Canada,3519595
 Detroit,United States,3506126
-Busan,"Korea, South",3453198
 San Diego,United States,3220118
 Santa Cruz,Bolivia,3151676
-Addis Ababa,Ethiopia,3041002
 Brasilia,Brazil,3015268
 Kuwait City,Kuwait,2989000
 Minneapolis,United States,2977172
 Kyiv,Ukraine,2963199
-Incheon,"Korea, South",2913024
 Tampa,United States,2908063
 Birmingham,United Kingdom,2897303
 Salvador,Brazil,2886698
 Denver,United States,2876625
 Rome,Italy,2872800
 La Paz,Bolivia,2867504
-Pyongyang,"Korea, North",2863000
+Pyongyang,North Korea,2863000
 Taichung,Taiwan,2803894
 Omdurman,Sudan,2805396
 Kaohsiung,Taiwan,2773533
@@ -91,8 +77,6 @@ Dubai,United Arab Emirates,2502715
 Guatemala City,Guatemala,2450212
 Tijuana,Mexico,2384609
 Vancouver,Canada,2264823
-Tangerang,Indonesia,2237006
-Queens,United States,2230722
 Baku,Azerbaijan,2181800
 Havana,Cuba,2141652
 Mogadishu,Somalia,2120000
@@ -105,7 +89,6 @@ San Antonio,United States,2049293
 St. Louis,United States,2024074
 Quito,Ecuador,2011388
 Minsk,Belarus,2009786
-Kananga,Congo (Kinshasa),1971704
 Caracas,Venezuela,1943901
 Vienna,Austria,1911191
 Leeds,United Kingdom,1901934
@@ -119,7 +102,6 @@ Warsaw,Poland,1790658
 Damascus,Syria,1754000
 Brussels,Belgium,1743000
 Budapest,Hungary,1752286
-Hyderabad City,Pakistan,1732693
 Cleveland,United States,1710093
 Pittsburgh,United States,1703266
 Austin,United States,1687311

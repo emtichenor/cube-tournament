@@ -22,6 +22,8 @@ class Roster:
         self.event_num = 0
         self.records = None
         self.season_num = None
+        self.user = None
+        self.used_cities = []
         if self.campaign_flag:
             self.roster_folder = "Campaigns"
         else:
@@ -39,6 +41,8 @@ class Roster:
         self.header = next(csvreader)
         for row in csvreader:
             person = Player(row)
+            if not isinstance(person.expected_score, float):
+                self.user = person
             self.roster.append(person)
         file.close()
 
@@ -149,6 +153,9 @@ class Roster:
                 person.append(round(random.gauss(exp_score, exp_score_sd), 2))
                 person.append(round(random.gauss(consistency, consistency_sd), 2))
                 person += ['N/A' for i in range(len(Player.getHeader())-5)]
+
+            initial_roster.sort(key=lambda x: x[3])
+            for person in initial_roster:
                 csvwriter.writerow(person)
             csvfile.close()
         shutil.copyfile(f"{filepath}/initial_roster.csv", f"{filepath}/current_roster.csv")
@@ -253,8 +260,8 @@ class Roster:
                     r_player["Player"] = player
                     break
 
-    @staticmethod
-    def randomTournamentName(invite=False):
+
+    def randomTournamentName(self, big=False,invite=False, championship=False):
         file = open('../Data/Resources/Event_List/world_cities.csv')
         csvreader = csv.reader(file)
         cities = []
@@ -264,17 +271,27 @@ class Roster:
             pop.append(int(row[2]))
         file.close()
 
-        city_list = random.choices(cities,weights=pop)[0]
+        city_list = random.choices(cities, weights=pop)[0]
         city = city_list[0]
+        while city in self.used_cities:
+            city_list = random.choices(cities, weights=pop)[0]
+            city = city_list[0]
+        if championship:
+            self.used_cities = []
+            return city
         country = city_list[1]
-        options = [f'The {city} Open Tournament', f'{city} Open', f'{city} Cup', f'The {city} Cubing Cup', f'The {city} Cubing Open',
-                   f'The {city} Cup Sponsored by GAN', f'The {city} Big Double', f'The MoYu {city} Cup',
-                   f'The {city} Open Tournament in {country}', f'The {country} Nationals in {city}', f'The {city} Big Double in {country}',
-                   f'The {country} Open in {city}']
+
         if invite:
             options = [f'The {city} Invitational Tournament', f'{city} Invitational', f'{city} Cup', f'The {city} Cubing Invitational',
-                   f'The {city} Cup Sponsored by GAN', f'The {city} Big Double', f'The MoYu {city} Invitational Cup',
+                   f'The {city} Cup Sponsored by GAN', f'The MoYu {city} Invitational Cup',
                    f'The {city} Invite Only Tournament in {country}']
+        elif big:
+            options = [ f'The {city} Big Double',f'The {city} Big Double in {country}', f'Speedcubes Massive Battle in {city}' ]
+        else:
+            options = [f'The {city} Open Tournament', f'{city} Open', f'{city} Cup', f'The {city} Cubing Cup',
+                       f'The {city} Cubing Open', f'Speedcubes {city} Open',
+                       f'The {city} Cup Sponsored by GAN', f'The MoYu {city} Cup',
+                       f'The {city} Open Tournament in {country}', f'The {country} Nationals in {city}',f'The {country} Open in {city}']
         r = random.randint(0,len(options)-1)
         return options[r]
 
@@ -322,4 +339,4 @@ class Roster:
             p.append(round(random.gauss(consistency, consistency_sd), 2))
             new_player = Player(p + ['N/A' for _ in range(len(Player.getHeader()) - 5)])
             self.roster.append(new_player)
-
+        self.roster[1:].sort(key=lambda x : x.expected_score)

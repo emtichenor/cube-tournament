@@ -1,3 +1,6 @@
+import csv
+import json
+
 from src.Campaign import Campaign
 from Tests.Config import Config
 from src.PracticeTournament import PracticeTournament
@@ -23,7 +26,7 @@ def practiceTournamentMenu(options):
 def campaignMenu(options):
     options['CAMPAIGN_FLAG'] = True
     campaign = Campaign(options)
-    while not options['NO_INPUT_FLAG']:
+    while True:
         c = input("\nPlease select an option\n1: Create New Campaign \n2: Load Campaign\n3: Quit to Main Menu\n")
         if c == '1':
             print("\nStarting new campaign!\n")
@@ -51,13 +54,13 @@ def menu(test_mode=False):
 
 
 def garbage():
-    mylist = ["Rank", "First Name", "Last Name", "AO5", "AO5 Times"," Event Num"," Event"]
-    a = [3,3,3,3,3,3,3]
-    mylist3 = dict(zip(mylist,a))
-    print(mylist3)
+    li = [[6],[2],[3],[4],['n/a']]
+    li[:-1].sort(key=lambda x: x[0])
+    print(li)
     quit()
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
+    TESTING = False
 
     #garbage()
-    menu()
+    menu(TESTING)
