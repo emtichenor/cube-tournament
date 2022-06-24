@@ -539,8 +539,8 @@ class Event:
                  ["Num Events", left.num_events, "v", right.num_events],
                  ["Championships", left.championships, "v", right.championships],
                  ["Win Count", left.win_count, "v", right.win_count],
-                 ["Podium Count", left.win_count, "v", right.podium_count],
-                 ["WR Count", left.win_count, "v", right.wr_count]
+                 ["Podium Count", left.podium_count, "v", right.podium_count],
+                 ["WR Count", left.wr_count, "v", right.wr_count]
 
                  ]
         total = ["Total",0,"v",0]
