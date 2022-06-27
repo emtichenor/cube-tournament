@@ -474,27 +474,30 @@ class Event:
                 else:
                     waiting_players.append(parts[0].get_competitor())
         if waiting_players:
-            print("Players Waiting on Matches:")
+            print("\nPlayers Waiting on Matches:")
             round = 0
-        if self.win_rnd == 1:
-            print("Winners Round 1:")
-            for player in waiting_players:
-                print(player.format_seed())
-        else:
-            for player in waiting_players:
-                if (player.winners_bracket and self.win_num == 1) or round != player.losers_round:
-                    if round != 0:
-                        print()
-                    if waiting_players[-1] is player and self.win_num == 1:
-                        print("Grand Finals:")
-                    elif waiting_players[-2] is player and self.win_num == 1:
-                        print("Losers Finals:")
-                    else:
-                        round = player.losers_round
-                        print(f"Losers Round {round}:")
+            if self.win_rnd == 1:
+                print("\nWinners Round 1:")
+                for player in waiting_players:
+                    print(player.format_seed())
+            else:
+                first_instance = True
+                for player in waiting_players:
+                    if (player.winners_bracket and self.win_num == 1) or round != player.losers_round:
+                        if not first_instance:
+                            print()
+                        if waiting_players[-1] is player and self.win_num == 1:
+                            print("Grand Finals:")
+                        elif waiting_players[-2] is player and self.win_num == 1:
+                            print("Losers Finals:")
+                        else:
+                            round = player.losers_round
+                            print(f"Losers Round {round}:")
 
-                print(player.format_seed())
-        print("\nActive Matches:")
+
+                    print(player.format_seed())
+                    first_instance = False
+        print("\n\nActive Matches:")
         winners_matches, losers_matches = [], []
         for match in matches:
             if match.is_ready_to_start() and match.get_participants()[0].competitor.winners_bracket:
@@ -506,6 +509,7 @@ class Event:
             for match in winners_matches:
                 print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
                                             for p in match.get_participants()]))
+            print()
         if losers_matches:
             print(f"{self.getRound(False)}")
             for match in losers_matches:
