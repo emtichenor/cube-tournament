@@ -6,7 +6,7 @@ class Config:
             options = {"TEST_FLAG": False, "NO_INPUT_FLAG": False, "SAVE_FLAG": True, 'NO_SLEEP_FLAG' : True}
         if test_mode:
             options['TEST_FLAG'] = True
-            options['NO_INPUT_FLAG'] = True
+            options['NO_INPUT_FLAG'] = False
             options['NO_SLEEP_FLAG'] = True
             options['TEST_USER_QUALI'] = [60.0, 61.0, 62.0, 63.0, 64.0]
             options['TEST_USER_TIMES'] = [35.0, 35.0, 35.0, 35.0, 35.0]
