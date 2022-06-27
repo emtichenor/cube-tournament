@@ -85,7 +85,6 @@ class Event:
         while not grand_finals:
             active_matches = self.det.get_active_matches()
             self.active_matches_count = len(active_matches)
-            self.printMatches(active_matches)
             self.winners_round_matches = []
             self.losers_round_matches = []
             for match in self.det.get_active_matches():
@@ -97,7 +96,7 @@ class Event:
                     self.losers_round_matches.append(match)
             if self.win_rnd > 0: self.los_rnd +=1
             if self.winners_round_matches: self.win_rnd += 1
-
+            self.printMatches(active_matches)
             if self.det.get_active_matches_for_competitor(self.user):
                 self.userTournament()
             elif self.user not in self.final_rankings:
@@ -422,6 +421,7 @@ class Event:
             self.roster_obj.records.checkRecords(loser, self.event_records)
             self.win_num -= 1
             self.los_num += 1
+            loser.losers_round = 2 * (self.win_rnd - 1)
         else:
             self.elim_queue.append(loser)
             self.roster_obj.records.checkRecords(loser, self.event_records)
@@ -462,28 +462,60 @@ class Event:
         print("\n\n--------------------------------------------")
         print(f"Players in Winners Bracket: {self.win_num}")
         print(f"Players in Losers Bracket: {self.los_num}")
-        print(f"Total Players Remaining: {self.win_num + self.los_num}")
-        print("Active Winners Matches:")
-        was_match = False
-        if not matches:
-            print("None")
+        print(f"Total Players Remaining: {self.win_num + self.los_num}\n")
+
+        waiting_players = []
+        all_matches = self.det.get_matches()
+        for match in all_matches:
+            parts = match.get_participants()
+            if (parts[0].get_competitor() is None) ^ (parts[1].get_competitor() is None):
+                if(parts[0].get_competitor() is None):
+                    waiting_players.append(parts[1].get_competitor())
+                else:
+                    waiting_players.append(parts[0].get_competitor())
+        if waiting_players:
+            print("\nPlayers Waiting on Matches:")
+            round = 0
+            if self.win_rnd == 1:
+                print("\nWinners Round 1:")
+                for player in waiting_players:
+                    print(player.format_seed())
+            else:
+                first_instance = True
+                for player in waiting_players:
+                    if (player.winners_bracket and self.win_num == 1) or round != player.losers_round:
+                        if not first_instance:
+                            print()
+                        if waiting_players[-1] is player and self.win_num == 1:
+                            print("Grand Finals:")
+                        elif waiting_players[-2] is player and self.win_num == 1:
+                            print("Losers Finals:")
+                        else:
+                            round = player.losers_round
+                            print(f"Losers Round {round}:")
+
+
+                    print(player.format_seed())
+                    first_instance = False
+        print("\n\nActive Matches:")
+        winners_matches, losers_matches = [], []
         for match in matches:
             if match.is_ready_to_start() and match.get_participants()[0].competitor.winners_bracket:
-                was_match = True
-                print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
-                                            for p in match.get_participants()]))
-        if not was_match:
-            print("None")
-        was_match = False
-        print("\nActive Losers Matches:")
-        for match in matches:
+                winners_matches.append(match)
             if match.is_ready_to_start() and not match.get_participants()[0].competitor.winners_bracket:
-                was_match = True
+                losers_matches.append(match)
+        if winners_matches:
+            print(f"{self.getRound(True)}")
+            for match in winners_matches:
                 print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
                                             for p in match.get_participants()]))
-        if not was_match:
-            print("None")
-        print('')
+            print()
+        if losers_matches:
+            print(f"{self.getRound(False)}")
+            for match in losers_matches:
+                print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
+                                            for p in match.get_participants()]))
+
 
     def getRound(self, winners_bracket):
         if self.win_num == 1 and self.los_num == 1:
