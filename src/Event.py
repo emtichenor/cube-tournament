@@ -495,28 +495,23 @@ class Event:
 
                 print(player.format_seed())
         print("\nActive Matches:")
-        print(f"{self.getRound(True)}")
-        was_match = False
-        if not matches:
-            print("None")
+        winners_matches, losers_matches = [], []
         for match in matches:
             if match.is_ready_to_start() and match.get_participants()[0].competitor.winners_bracket:
-                was_match = True
-                print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
-                                            for p in match.get_participants()]))
-        if not was_match:
-            print("None")
-        was_match = False
-        if self.los_rnd != 0:
-            print(f"\n{self.getRound(False)}")
-        for match in matches:
+                winners_matches.append(match)
             if match.is_ready_to_start() and not match.get_participants()[0].competitor.winners_bracket:
-                was_match = True
+                losers_matches.append(match)
+        if winners_matches:
+            print(f"{self.getRound(True)}")
+            for match in winners_matches:
                 print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
                                             for p in match.get_participants()]))
-        if not was_match and self.los_rnd != 0:
-            print("None")
-        print('')
+        if losers_matches:
+            print(f"{self.getRound(False)}")
+            for match in losers_matches:
+                print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
+                                            for p in match.get_participants()]))
+
 
     def getRound(self, winners_bracket):
         if self.win_num == 1 and self.los_num == 1:
