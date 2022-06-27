@@ -22,7 +22,7 @@ Each player has two variables, their expected score and their consistency. Times
 Where their expected score is the mean or the midpoint of the curve and the consistency is the standard deviation. In simpler terms the expected score will
 determine the average times and the consistency will determine how close or far away from the average each time is.
 
-.. image:: images/Standard_deviation_diagram.svg
+.. image:: images/Standard_deviation_diagram.png
 
 
 Custom
