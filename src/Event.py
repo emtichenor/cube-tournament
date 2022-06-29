@@ -515,6 +515,7 @@ class Event:
             for match in losers_matches:
                 print("\t{:<25} v {:>25}".format(*[p.get_competitor().format_seed()
                                             for p in match.get_participants()]))
+            print("\n")
 
 
     def getRound(self, winners_bracket):
@@ -607,9 +608,9 @@ class Event:
         if e.recent_ao5 == "DNF": return 1000
         return e.recent_ao5
 
-    def sleep(self, time):
+    def sleep(self, sleep_time):
         if not self.options["NO_SLEEP_FLAG"]:
-            time.sleep(time)
+            time.sleep(sleep_time)
 
 
 

@@ -3,7 +3,7 @@ class Config:
     def get_options(test_mode, options=None):
 
         if not options:
-            options = {"TEST_FLAG": False, "NO_INPUT_FLAG": False, "SAVE_FLAG": True, 'NO_SLEEP_FLAG' : True}
+            options = {"TEST_FLAG": False, "NO_INPUT_FLAG": False, "SAVE_FLAG": True, 'NO_SLEEP_FLAG' : False}
         if test_mode:
             options['TEST_FLAG'] = True
             options['NO_INPUT_FLAG'] = False
