@@ -1,0 +1,4 @@
+Faker>=13
+double-elimination>=1.3
+pytest>=7
+python-dateutil>=2.8
