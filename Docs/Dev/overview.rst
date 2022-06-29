@@ -9,6 +9,8 @@ I tried to refactor as I went but some sections are a bit too complicated and so
 too bloated with one use helper functions.
 
 
-``.. image:: images/flowchart.jpeg``
+.. image:: ../images/flowchart.jpg
+
+
 
 
