@@ -230,7 +230,7 @@ class Roster:
             exp_score = [(mean_score * 1.2), (mean_score * 0.05)]
             consistency = [(sd_score * 1.1), (sd_score * 0.1)]
         elif difficulty in ["medium", "Medium"]:
-            exp_score = [(mean_score * 1.15), (mean_score * 0.07)]
+            exp_score = [(mean_score * 1.15), (mean_score * 0.075)]
             consistency = [(sd_score * 1.1), (sd_score * 0.1)]
         else: # Hard
             exp_score = [(mean_score * 1.1),(mean_score * 0.09)]
