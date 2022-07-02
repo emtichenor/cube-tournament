@@ -575,9 +575,9 @@ class Event:
         if e.recent_ao5 == "DNF": return 1000
         return e.recent_ao5
 
-    def sleep(self, time):
+    def sleep(self, sleep_time):
         if not self.options["NO_SLEEP_FLAG"]:
-            time.sleep(time)
+            time.sleep(sleep_time)
 
 
 
