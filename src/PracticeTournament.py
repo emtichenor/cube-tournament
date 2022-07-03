@@ -12,6 +12,9 @@ class PracticeTournament:
 
     def menu(self):
         if not self.roster.roster:
+            if not os.path.isdir("../Data/Practice_Tournaments"):
+                print("No current save files. Please create a new one.\n")
+                return
             save_names = os.listdir("../Data/Practice_Tournaments")
             if len(save_names) == 0:
                 print("No current save files. Please create a new one.\n")

@@ -19,6 +19,9 @@ class Campaign:
 
     def menu(self):
         if not self.roster.roster:
+            if not os.path.isdir("../Data/Campaigns"):
+                print("No current save files. Please create a new one.\n")
+                return
             save_names = os.listdir("../Data/Campaigns")
             if len(save_names) == 0:
                 print("No current save files. Please create a new one.\n")

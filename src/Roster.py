@@ -90,7 +90,7 @@ class Roster:
         for _ in range(100):
             try:
                 self.roster_name = input("Please enter a name for your save file: ")
-                os.mkdir(f"../Data/{self.roster_folder}/{self.roster_name}")
+                os.makedirs(f"../Data/{self.roster_folder}/{self.roster_name}")
                 break
             except OSError as error:
                 print(f"A roster named {self.roster_name} already exists!\n")
