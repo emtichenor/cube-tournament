@@ -422,6 +422,7 @@ class Event:
             self.win_num -= 1
             self.los_num += 1
             loser.losers_round = 2 * (self.win_rnd - 1)
+            self.roster_obj.records.checkRecords(winner, self.event_records)
         else:
             self.elim_queue.append(loser)
             self.roster_obj.records.checkRecords(loser, self.event_records)
