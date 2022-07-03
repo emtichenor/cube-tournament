@@ -1,7 +1,7 @@
 # Manually Added
 .idea/
-Data/Practice_Tournaments/*.csv
-Data/Campaigns/*.csv
+Data/Practice_Tournaments/
+Data/Campaigns/
 
 
 # Byte-compiled / optimized / DLL files
