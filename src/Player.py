@@ -30,6 +30,7 @@ class Player:
         self.qualify_times = None
         self.final_rank = None
         self.winners_bracket = True
+        self.losers_round = None
 
         # For Final Event csv
         self.best_event_ao5 = None
