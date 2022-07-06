@@ -198,7 +198,6 @@ class Campaign:
             p.qualify_rank = event_roster.index(p) + 1
             if not isinstance(p.expected_score, float):
                 self.event.user = p
-                break
         print(f"\n\nWelcome to the {self.next_tournament['Name']}!\n\n")
         self.event.qualify_rankings = event_roster.copy()
         self.event.tournament()
