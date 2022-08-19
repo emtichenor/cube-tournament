@@ -95,7 +95,7 @@ class Event:
                 else:
                     self.losers_round_matches.append(match)
             if self.win_rnd > 0: self.los_rnd +=1
-            if self.winners_round_matches: self.win_rnd += 1
+            if self.winners_round_matches or (self.user.winners_bracket and self.win_num == 2): self.win_rnd += 1
             self.printMatches(active_matches)
             if self.det.get_active_matches_for_competitor(self.user):
                 self.userTournament()
@@ -281,7 +281,7 @@ class Event:
             opp_score = Score.single(opp)
             if not self.options['NO_INPUT_FLAG']:
                 if not isinstance(opp_score, float): self.sleep(opp.expected_score)
-                else: self.sleep(opp_score)
+                else: self.sleep(0.2) #Temp change
             print("""----------------\nOPPONENT FINISHED\n-----------------""")
             while True:
                 score = input("Enter your time: ")
@@ -549,7 +549,7 @@ class Event:
         self.possible_placings = placings
 
     def getWorstPossiblePlacing(self, winners_bracket):
-        if self.win_num == 1 and self.los_num == 1:
+        if (self.win_num == 1 and self.los_num == 1) or self.win_num == 0:
             return 2
         elif winners_bracket and self.win_rnd == 1:
             return self.num_qualify
