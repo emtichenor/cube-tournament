@@ -156,8 +156,8 @@ class Roster:
             consistency = roster_values["consistency"][0]
             consistency_sd = roster_values["consistency"][1]
             for person in initial_roster:
-                person.append(round(random.gauss(exp_score, exp_score_sd), 2))
-                person.append(round(random.gauss(consistency, consistency_sd), 2))
+                person.append(abs(round(random.gauss(exp_score, exp_score_sd), 2)))
+                person.append(abs(round(random.gauss(consistency, consistency_sd), 2)))
                 person += ['N/A' for i in range(len(Player.getHeader())-5)]
 
             initial_roster.sort(key=lambda x: x[3])
@@ -388,8 +388,8 @@ class Roster:
         consistency = self.roster_values["consistency"][0]
         consistency_sd = self.roster_values["consistency"][1]
         for p in initial_roster:
-            p.append(round(random.gauss(exp_score, exp_score_sd), 2))
-            p.append(round(random.gauss(consistency, consistency_sd), 2))
+            p.append(abs(round(random.gauss(exp_score, exp_score_sd), 2)))
+            p.append(abs(round(random.gauss(consistency, consistency_sd), 2)))
             new_player = Player(p + ['N/A' for _ in range(len(Player.getHeader()) - 5)])
             self.roster.append(new_player)
         self.roster[1:].sort(key=lambda x : x.expected_score)
