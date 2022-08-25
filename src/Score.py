@@ -103,3 +103,8 @@ class Score:
             times.remove(max_time)
             best = round(mean(times),2)
             return f"Best: [{best}]  Worst: [{worst}]  "
+
+    @staticmethod
+    def get_score(e):
+        if e.recent_ao5 == "DNF": return 1000
+        return e.recent_ao5
