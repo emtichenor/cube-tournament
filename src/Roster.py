@@ -75,6 +75,12 @@ class Roster:
             os.rename(current_filepath, backup_filepath)
 
 
+        # Sort roster by exp_score
+        user = self.roster.pop(0)
+        self.roster.sort(key=lambda x : x.expected_score)
+        self.roster.insert(0, user)
+
+
         with open(current_filepath, 'w', newline='') as csvfile:
             csvwriter = csv.writer(csvfile)
             csvwriter.writerow(["exp_score"]+self.roster_values["exp_score"])
@@ -197,6 +203,8 @@ class Roster:
                     print("Invalid input! Please enter two numbers seperated by a comma.")
                     consistency = None
                     continue
+            if consistency and exp_score:
+                break
         return {"exp_score": exp_score, "consistency": consistency}
 
 
@@ -245,6 +253,51 @@ class Roster:
             if isinstance(player.expected_score, float):
                 player.expected_score = round(player.expected_score * random.gauss(0.99, 0.01), 2)
                 player.consistency = round(player.consistency * random.gauss(0.98, 0.01), 2)
+
+    def adjust(self):
+        print("Adjusting Current Roster File: ")
+        adj_current = None
+        while True:
+            try:
+                print(f"New Player Expected Score: {self.roster_values['exp_score']}")
+                print(f"New Player Consistency: {self.roster_values['consistency']}\n")
+                ans = input("Enter new Expected Score and Std Dev seperated by comma, or say 'quit': ")
+                new_exp_score = re.split('; |, |,| ', ans)
+                if new_exp_score in ['Quit', 'quit']: return
+                if len(new_exp_score) != 2: raise ValueError
+                new_exp_score[0] = float(new_exp_score[0])
+                new_exp_score[1] = float(new_exp_score[1])
+
+                ans = input("Enter new Consistency and Std Dev seperated by comma, or say 'quit': ")
+                if new_exp_score in ['Quit', 'quit']: return
+                new_consistency = re.split('; |, |,| ', ans)
+                if len(new_consistency) != 2: raise ValueError
+                new_consistency[0] = float(new_consistency[0])
+                new_consistency[1] = float(new_consistency[1])
+                adj_current = input("Would you like to apply this to current players? ")
+                if adj_current in ["Yes", "yes", "Y", 'y', "ye", "Ye", "Ya", "ya"]:
+                    adj_current = True
+                elif adj_current in ["No", "no", "na", "Na"]:
+                    adj_current = False
+                else:
+                    raise ValueError
+                break
+            except (ValueError,TypeError) as e:
+                print("Invalid input!")
+                print(e)
+                continue
+        if adj_current:
+            exp_delta = self.roster_values["exp_score"][0] - new_exp_score[0]
+            con_delta = self.roster_values["consistency"][0] - new_consistency[0]
+            for player in self.roster:
+                if isinstance(player.expected_score, float):
+                    player.expected_score = round(player.expected_score - exp_delta, 2)
+                    player.consistency = round(player.consistency - con_delta, 2)
+
+        self.roster_values["exp_score"] = new_exp_score
+        self.roster_values["consistency"] = new_consistency
+        self.save(self.roster_name)
+
 
     def loadRecords(self, filename):
         self.records = Records()

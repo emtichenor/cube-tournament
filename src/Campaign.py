@@ -49,7 +49,7 @@ class Campaign:
             print(f"\nCampgaign: {self.campaign_name}")
             print(f"Season {self.season_num}")
             print(f"Event {self.next_tournament['Num']}\n{self.next_tournament['Name']}")
-            c = input("\nPlease select an option\n1: Play Next Event \n2: Schedule\n3: Standings\n4: Records\n5: Quit\n")
+            c = input("\nPlease select an option\n1: Play Next Event \n2: Schedule\n3: Standings\n4: Records\n5: Adjust Roster\n6: Quit\n")
             if c == '1':
                 print("Starting new event!\n")
                 self.runEvent()
@@ -60,6 +60,8 @@ class Campaign:
             elif c == '4':
                 self.displayRecords()
             elif c == '5':
+                self.roster.adjust()
+            elif c == '6':
                 print("Quitting to main menu.\n")
                 break
             else:
