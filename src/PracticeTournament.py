@@ -37,15 +37,17 @@ class PracticeTournament:
             self.roster.load(self.selected_name)
         while True:
             print(f"\nPractice Tournament: {self.selected_name}")
-            c = input("\nPlease select an option\n1: Play Next Event \n2: Records\n3: Quit\n")
+            c = input("\nPlease select an option\n1: Play Next Event \n2: Records\n3: Adjust Roster\n4: Quit\n")
             if c == '1':
                 print("Starting new event!\n")
                 self.runEvent()
             elif c == '2':
                 self.displayRecords()
             elif c == '3':
+                self.roster.adjust()
+            elif c == '4':
                 print("Quitting to main menu.\n")
-                self.roster = []
+                self.roster = None
                 break
             else:
                 print("\n\nInvalid Input!\n")
