@@ -95,7 +95,8 @@ class Event:
                 else:
                     self.losers_round_matches.append(match)
             if self.win_rnd > 0: self.los_rnd +=1
-            if self.winners_round_matches or (self.user.winners_bracket and self.win_num == 2): self.win_rnd += 1
+            if self.winners_round_matches or (self.user and self.user.winners_bracket and self.win_num == 2):
+                self.win_rnd += 1
             self.printMatches(active_matches)
             if self.det.get_active_matches_for_competitor(self.user):
                 self.userTournament()
@@ -280,7 +281,7 @@ class Event:
                 continue
             opp_score = Score.single(opp)
             if not self.options['NO_INPUT_FLAG']:
-                if not isinstance(opp_score, float): self.sleep(opp.expected_score)
+                if not isinstance(opp_score, float): self.sleep(0.2) #Temp change
                 else: self.sleep(0.2) #Temp change
             print("""----------------\nOPPONENT FINISHED\n-----------------""")
             while True:
