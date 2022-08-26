@@ -27,8 +27,10 @@ class Score:
     def single(player):
         if random.uniform(0,100) < player.consistency:
             return "DNF"
-        return abs(float(round(random.gauss(player.expected_score, player.consistency), 2)))
-
+        score = abs(float(round(random.gauss(player.expected_score, player.consistency), 2)))
+        if score == 0:
+            score = 0.01
+        return score
     @staticmethod
     def handle_dnf(e):
         if e == "DNF":
