@@ -1,7 +1,7 @@
 import csv
 import json
 
-from src.Campaign import Campaign
+from src.Campaign.Campaign import Campaign
 from Tests.Config import Config
 from src.PracticeTournament import PracticeTournament
 
@@ -54,13 +54,36 @@ def menu(test_mode=False):
 
 
 def garbage():
-    li = [[6],[2],[3],[4],['n/a']]
-    li[:-1].sort(key=lambda x: x[0])
-    print(li)
+    file = open(f'../Data/Campaigns/Main/Rosters/current_roster.csv')
+    csvreader = csv.reader(file)
+    exp_score = next(csvreader)
+    roster_values = {}
+    roster_values["exp_score"] = [float(x) for x in exp_score[1:]]
+    consistency = next(csvreader)
+    roster_values["consistency"] = [float(x) for x in consistency[1:]]
+    header = next(csvreader)
+    header.insert(12, "Status")
+    roster = []
+    for row in csvreader:
+        if int(row[2]) > 30:
+
+            row.insert(12,"Retired")
+        else:
+            row.insert(12, "Active")
+        roster.append(row)
+    file.close()
+    with open(f'../Data/Campaigns/Main/Rosters/current_roster.csv', 'w', newline='') as csvfile:
+        csvwriter = csv.writer(csvfile)
+        csvwriter.writerow(["exp_score"] + roster_values["exp_score"])
+        csvwriter.writerow(["consistency"] + roster_values["consistency"])
+        csvwriter.writerow(header)
+        for person in roster:
+            csvwriter.writerow(person)
+        csvfile.close()
     quit()
 if __name__ == "__main__":
     print("Welcome to the Cube Tournament Simulator!")
-    TESTING = False
+    TESTING = True
 
     #garbage()
     menu(TESTING)
