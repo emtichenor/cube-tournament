@@ -3,6 +3,7 @@ import os
 
 from src.Event import Event
 from src.Roster import Roster
+from src.Campaign.CampaignHelper import CampaignHelper
 
 ordinal = lambda rank: "%d%s" % (rank, "tsnrhtdd"[(rank // 10 % 10 != 1) * (rank % 10 < 4) * rank % 10::4]) # Black magic
 class Campaign:
@@ -118,7 +119,7 @@ class Campaign:
         self.next_tournament = self.tournaments[0]
         self.season_roster, self.season_rankings = [], []
         for player in self.roster.roster:
-            if (player.age >= 18 and player.age <= 30) or not isinstance(player.expected_score, float):
+            if not player.retired:
                 self.season_roster.append(player)
 
         roster_path = f"../Data/Campaigns/{self.campaign_name}/Rosters/"
@@ -137,12 +138,12 @@ class Campaign:
     def nextSeason(self):
         for player in self.roster.roster:
             player.age += 1
-            self.roster.improve(player)
-        self.roster.addNewPlayersToRoster(40)
+            CampaignHelper.considerRetirement(player)
+            CampaignHelper.improve(player)
+        CampaignHelper.addNewPlayersToRoster(40, self.roster)
         self.generateSeason()
         self.roster.season_num += 1
         self.roster.save(self.campaign_name)
-
 
 
     def load(self):
@@ -161,7 +162,7 @@ class Campaign:
         file.close()
 
         for player in self.roster.roster:
-            if (player.age >= 18 and player.age <= 30) or not isinstance(player.expected_score, float):
+            if not player.retired:
                 self.season_roster.append(player)
 
         file = open(f'../Data/Campaigns/{self.campaign_name}/Schedules/Season_{self.season_num}.csv')
@@ -185,7 +186,7 @@ class Campaign:
             self.runChampionship()
             return
         elif self.next_tournament["Type"] == "Invite":
-            event_roster = self.sortRoster(self.next_tournament["Invite Num"])
+            event_roster = CampaignHelper.sortRoster(self.next_tournament["Invite Num"], self.season_rankings, self.season_roster)
         else:
             event_roster = self.season_roster
         self.event = Event(self.next_tournament["Name"], event_roster, self.roster, self.options)
@@ -194,7 +195,7 @@ class Campaign:
         self.saveEvent()
 
     def runChampionship(self):
-        event_roster = self.sortRoster(16)
+        event_roster = CampaignHelper.sortRoster(16, self.season_rankings, self.season_roster)
         self.event = Event(self.next_tournament["Name"], event_roster, self.roster, self.options)
         for p in event_roster:
             p.qualify_rank = event_roster.index(p) + 1
@@ -218,7 +219,7 @@ class Campaign:
             for s_player in self.season_rankings:
                 if player.fname == s_player[1] and player.lname == s_player[2]:
                     s_player.append(placing)
-                    s_player[0] += self.calcPoints(placing)
+                    s_player[0] += CampaignHelper.calcPoints(placing)
                     placing += 1
                     break
         self.season_rankings.sort(reverse=True, key=lambda x: (x[0], -min(x[3:])))
@@ -276,7 +277,7 @@ class Campaign:
                 for s_player in self.season_rankings:
                     if player.fname == s_player[1] and player.lname == s_player[2]:
                         s_player.append(placing)
-                        s_player[0] += self.calcPoints(placing)
+                        s_player[0] += CampaignHelper.calcPoints(placing)
                         placing += 1
                         break
             self.season_rankings.sort(reverse=True, key=lambda x: (x[0], -min(x[3:])))
@@ -344,24 +345,9 @@ class Campaign:
     def displayRecords(self):
         pass
 
-    @staticmethod
-    def calcPoints(placing):
-        if placing > 32: return 0
-        # 1 = 25, 2 = 18, 3 = 15, 4 = 12, T6 = 10, T8 = 8, T12 = 6, T16 = 4, T24 = 2,T32 = 1
-        points = [25,18,15,12,10,10,8,8,6,6,6,6,4,4,4,4]
-        for _ in range(8): points.append(2)
-        for _ in range(8): points.append(1)
 
-        return points[placing-1]
 
-    def sortRoster(self, roster_size):
-        event_roster = []
-        for p_rank in self.season_rankings[:roster_size]:
-            for player in self.season_roster:
-                if player.fname == p_rank[1] and player.lname == p_rank[2]:
-                    event_roster.append(player)
-                    break
-        return event_roster
+
 
 
 

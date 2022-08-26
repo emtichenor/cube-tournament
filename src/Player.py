@@ -17,10 +17,11 @@ class Player:
         self.win_count = self.to_int(args[9])
         self.podium_count = self.to_int(args[10])
         self.wr_count = self.to_int(args[11])
-        self.season_finishes = self.to_dict(args[12])
-        self.best_single = self.to_float(args[13])
-        self.best_ao5 = self.to_float(args[14])
-        self.best_ao5_times = args[15]
+        self.retired = self.ret_status(args[12])
+        self.season_finishes = self.to_dict(args[13])
+        self.best_single = self.to_float(args[14])
+        self.best_ao5 = self.to_float(args[15])
+        self.best_ao5_times = args[16]
 
         # For Event
         self.recent_ao5 = None
@@ -42,7 +43,7 @@ class Player:
 
     @staticmethod
     def getHeader():
-        return ["First Name","Last Name","Age","Expected Time","Consistency","Best Placing","AVG Placing","Num Events", "Championships","Wins","Podiums","World Records","Season Finishes", "Best Single","Best AO5","Best AO5 Times"]
+        return ["First Name","Last Name","Age","Expected Time","Consistency","Best Placing","AVG Placing","Num Events", "Championships","Wins","Podiums","World Records","Status","Season Finishes", "Best Single","Best AO5","Best AO5 Times"]
 
 
 
@@ -67,10 +68,23 @@ class Player:
         except ValueError as e:
             return arg
 
+    def ret_status(self, arg):
+        if arg == "Retired":
+            return True
+        elif arg in ["Active", "N/A"]:
+            return False
+        elif arg == True:
+            return "Retired"
+        elif arg == False:
+            return "Active"
+        else:
+            raise ValueError
+
     def to_csv(self):
         return [self.fname, self.lname, self.age, self.expected_score, self.consistency,
-                self.best_placing, self.avg_placing, self.num_events, self.championships, self.win_count, self.podium_count, self.wr_count, self.season_finishes, self.best_single,
-                self.best_ao5, self.best_ao5_times]
+                self.best_placing, self.avg_placing, self.num_events, self.championships,
+                self.win_count, self.podium_count, self.wr_count, self.ret_status(self.retired),
+                self.season_finishes, self.best_single, self.best_ao5, self.best_ao5_times]
 
 
 

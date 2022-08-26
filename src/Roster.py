@@ -129,7 +129,7 @@ class Roster:
         filepath = self.inputsForNewRoster()
         self.records.createFiles(self.roster_folder, self.roster_name)
         roster_values = {}
-        initial_roster = self.generateFakeNames(roster_size)
+        initial_roster = Roster.generateFakeNames(roster_size, self.roster)
         for _ in range(10000):
             print("Would you like to customize the roster generation or generate it based on your solves?")
             ans = input("Enter 'custom' to customize or enter 'solve' to auto generate: ")
@@ -245,16 +245,21 @@ class Roster:
             consistency = [(sd_score * 1.1), (sd_score * 0.1)]
         return {"exp_score": exp_score, "consistency": consistency}
 
-    def improve(self, player):
-        if isinstance(player, list):
-            player[3] = round(player[3] * random.gauss(0.99, 0.01),2)
-            player[4] = round(player[4] * random.gauss(0.98, 0.01),2)
-        else:
-            if isinstance(player.expected_score, float):
-                player.expected_score = round(player.expected_score * random.gauss(0.99, 0.01), 2)
-                player.consistency = round(player.consistency * random.gauss(0.98, 0.01), 2)
+
 
     def adjust(self):
+        while True:
+            try:
+                ans = input("Are you sure you want to adjust current roster? This is irreversable.")
+                if ans in ["Yes", "yes", "Y", 'y', "ye", "Ye", "Ya", "ya"]:
+                    break
+                elif ans in ["No", "no", "na", "Na"]:
+                    return
+                else:
+                    raise ValueError
+            except ValueError:
+                print("Invalid Input!")
+                continue
         print("Adjusting Current Roster File: ")
         adj_current = None
         while True:
@@ -355,8 +360,8 @@ class Roster:
             event_roster.append(self.roster[0])
         return event_roster
 
-
-    def generateFakeNames(self, num, new_season=False):
+    @staticmethod
+    def generateFakeNames(num, roster, new_season=False):
         fake = Faker()
         inital_roster = [fake.unique.name().split() for i in range(num)]
         filtered_roster = []
@@ -372,7 +377,7 @@ class Roster:
             else:
                 discard = False
                 i.append(18)
-                for player in self.roster:
+                for player in roster:
                     if player.fname == i[0] and player.lname == i[1]:
                         discard = True
                         break
@@ -381,15 +386,4 @@ class Roster:
         if filtered_roster: return filtered_roster
         else: return inital_roster
 
-    def addNewPlayersToRoster(self, num):
-        initial_roster = self.generateFakeNames(num, True)
-        exp_score = self.roster_values["exp_score"][0]
-        exp_score_sd = self.roster_values["exp_score"][1]
-        consistency = self.roster_values["consistency"][0]
-        consistency_sd = self.roster_values["consistency"][1]
-        for p in initial_roster:
-            p.append(abs(round(random.gauss(exp_score, exp_score_sd), 2)))
-            p.append(abs(round(random.gauss(consistency, consistency_sd), 2)))
-            new_player = Player(p + ['N/A' for _ in range(len(Player.getHeader()) - 5)])
-            self.roster.append(new_player)
-        self.roster[1:].sort(key=lambda x : x.expected_score)
+
