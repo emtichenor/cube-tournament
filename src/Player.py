@@ -3,25 +3,29 @@ import ast
 
 
 class Player:
-    
+    # To add a value to a player you need to:
+    # Add to init
+    # Add to getHeader()
+    # Add to to_csv()
     def __init__(self, args):
         self.fname = args[0]
         self.lname = args[1]
         self.age = self.to_int(args[2])
         self.expected_score = self.to_float(args[3])
         self.consistency = self.to_float(args[4])
-        self.best_placing = self.to_int(args[5])
-        self.avg_placing = self.to_float(args[6])
-        self.num_events = self.to_int(args[7])
-        self.championships = self.to_int(args[8])
-        self.win_count = self.to_int(args[9])
-        self.podium_count = self.to_int(args[10])
-        self.wr_count = self.to_int(args[11])
-        self.retired = self.ret_status(args[12])
-        self.season_finishes = self.to_dict(args[13])
-        self.best_single = self.to_float(args[14])
-        self.best_ao5 = self.to_float(args[15])
-        self.best_ao5_times = args[16]
+        self.potential = self.to_float(args[5])
+        self.best_placing = self.to_int(args[6])
+        self.avg_placing = self.to_float(args[7])
+        self.num_events = self.to_int(args[8])
+        self.championships = self.to_int(args[9])
+        self.win_count = self.to_int(args[10])
+        self.podium_count = self.to_int(args[11])
+        self.wr_count = self.to_int(args[12])
+        self.retired = self.ret_status(args[13])
+        self.season_finishes = self.to_dict(args[14])
+        self.best_single = self.to_float(args[15])
+        self.best_ao5 = self.to_float(args[16])
+        self.best_ao5_times = args[17]
 
         # For Event
         self.recent_ao5 = None
@@ -43,9 +47,7 @@ class Player:
 
     @staticmethod
     def getHeader():
-        return ["First Name","Last Name","Age","Expected Time","Consistency","Best Placing","AVG Placing","Num Events", "Championships","Wins","Podiums","World Records","Status","Season Finishes", "Best Single","Best AO5","Best AO5 Times"]
-
-
+        return ["First Name","Last Name","Age","Expected Time","Consistency","Potential","Best Placing","AVG Placing","Num Events", "Championships","Wins","Podiums","World Records","Status","Season Finishes", "Best Single","Best AO5","Best AO5 Times"]
 
     def to_float(self, arg):
         try:
@@ -81,7 +83,7 @@ class Player:
             raise ValueError
 
     def to_csv(self):
-        return [self.fname, self.lname, self.age, self.expected_score, self.consistency,
+        return [self.fname, self.lname, self.age, self.expected_score, self.consistency, self.potential,
                 self.best_placing, self.avg_placing, self.num_events, self.championships,
                 self.win_count, self.podium_count, self.wr_count, self.ret_status(self.retired),
                 self.season_finishes, self.best_single, self.best_ao5, self.best_ao5_times]
